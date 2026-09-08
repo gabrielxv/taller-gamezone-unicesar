@@ -1,0 +1,3 @@
+S001|Laura Gomez|laura@gamezone.com|3001001001|EMP-001
+S002|Carlos Perez|carlos@gamezone.com|3001001002|EMP-002
+S003|Andres Ruiz|andres@gamezone.com|3001001003|EMP-003
