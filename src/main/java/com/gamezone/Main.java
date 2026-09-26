@@ -1,8 +1,10 @@
 package com.gamezone;
 
+import com.gamezone.persistence.AccessoryRepository;
 import com.gamezone.persistence.PersonRepository;
 import com.gamezone.persistence.ProductRepository;
 import com.gamezone.persistence.SaleRepository;
+import com.gamezone.service.AccessoryService;
 import com.gamezone.service.PersonService;
 import com.gamezone.service.ProductService;
 import com.gamezone.service.SaleService;
@@ -16,10 +18,12 @@ public class Main {
     public static void main(String[] args) {
         try {
             ProductService productService = new ProductService(new ProductRepository(Path.of("data", "products.dat")));
+            AccessoryService accessoryService = new AccessoryService(new AccessoryRepository(Path.of("data", "accessories.csv")));
             PersonService personService = new PersonService(new PersonRepository(Path.of("data", "people.dat")));
             preloadSellers(personService);
-            SaleService saleService = new SaleService(new SaleRepository(Path.of("data", "sales.dat")), productService, personService);
-            new ConsoleUI(productService, personService, saleService).start();
+            SaleService saleService = new SaleService(new SaleRepository(Path.of("data", "sales.dat")),
+                    productService, personService, accessoryService);
+            new ConsoleUI(productService, accessoryService, personService, saleService).start();
         } catch (IOException | RuntimeException exception) {
             System.err.println("Unable to start GameZone: " + exception.getMessage());
         }
