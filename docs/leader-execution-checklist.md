@@ -4,11 +4,11 @@
 This file tracks only the technical-lead work for the partial exam. It does not replace the implementation tasks assigned to Developer 1 or Developer 2.
 
 ## 1. Branch and pull-request control
-- [ ] Keep integration work on `feature/partial-exam-integration`; do not commit directly to `main` or `develop`.
-- [ ] Review PR #10 (`feature/accessory-module`) for model, persistence, service, UI, README, and regression compatibility.
-- [ ] Do not integrate the accessory module until its PR is reviewed and the author addresses blocking findings.
+- [x] Keep integration work on `feature/partial-exam-integration`; do not commit directly to `main` or `develop`.
+- [x] Review PR #10 (`feature/accessory-module`) for model, persistence, service, UI, README, and regression compatibility.
+- [x] Record blocking integration findings on PR #10; do not integrate until the author addresses them and the updated diff is reviewed.
 - [ ] Require each feature PR to target `develop`, include a concise summary, tests/scenarios, and any migration/data-file notes.
-- [ ] Check the changed-file list and diff before approving; never approve based only on the PR description.
+- [ ] Check the changed-file list and diff before approving each remaining PR; never approve based only on the PR description.
 
 ## 2. Integration contracts
 - [ ] Keep the dependency direction `ui -> service -> persistence -> model`; model classes must not depend on UI or repositories.
@@ -63,4 +63,4 @@ If the environment cannot run Maven, record that explicitly and do not mark the 
 - [ ] Once feature PRs are integrated into `develop`, run the full verification gate and prepare a release PR from `develop` to `main`.
 
 ## Current status
-This checklist is a coordination and quality-gate artifact. It is not evidence that the new modules have been implemented, that Maven passes, or that PR #10 has been merged.
+The technical lead has reviewed PR #10 and documented blocking issues around sale/inventory consistency, the mixed-item sale contract, regression evidence, and CSV robustness. The accessory module remains pending; this checklist is not evidence that the new modules are implemented or that Maven verification has passed.
