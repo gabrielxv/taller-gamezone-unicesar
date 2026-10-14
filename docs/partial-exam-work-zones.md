@@ -1,7 +1,7 @@
 # Team Work Zones — Partial Exam
 
 ## Developer 1 — Practical Draft / Domain Models
-**Workspace:** model-layer implementation and first-pass business rules. Work on an assigned feature branch from `develop`; do not commit to `main` or `develop`.
+**Workspace:** independent draft/practical branch `trabajo/desarrollador-1-borrador`. Work on model-layer implementation and first-pass business rules. Submit a Pull Request to `integracion/entrega-final`; do not commit directly to `main`, `develop`, or the integration branch.
 
 ### Responsibilities
 - Accessories domain hierarchy: `Accessory`, `Controller`, `Cable`, `Memory`.
@@ -18,7 +18,7 @@
 - Atomic Conventional Commit messages in English.
 
 ## Developer 2 — Clean Code / Persistence and Services
-**Workspace:** refactor-ready implementation of repositories, services, validation and persistence. Build against agreed model contracts; avoid duplicating business logic.
+**Workspace:** independent clean-code branch `trabajo/desarrollador-2-codigo-limpio`. Implement repositories, services, validation and persistence against agreed model contracts. Submit a Pull Request to `integracion/entrega-final`; do not commit directly to `main`, `develop`, or the integration branch.
 
 ### Responsibilities
 - Repositories/services for accessories, promotions, returns and warranties.
@@ -35,7 +35,7 @@
 - Tests cover invalid inputs, missing resources, business-rule violations and persistence failures.
 
 ## Technical Lead — Integration, UI and quality gate
-**Workspace:** integration branch `feature/partial-exam-integration`; coordinate interfaces and review PRs.
+**Workspace:** shared integration/delivery branch `integracion/entrega-final`, documented in `docs/WORKSPACE_INTEGRATION.md`. Coordinate interfaces, review Pull Requests from both developer branches, test the combined project, and prepare the final release PR to `main`.
 
 ### Responsibilities
 - Keep the four-layer dependency direction: `ui -> service -> persistence -> model` (services may use model types).
@@ -47,9 +47,9 @@
 - Maintain a requirements checklist and report blockers rather than marking incomplete work as done.
 
 ## Collaboration and Git rules
-- Create work branches from the current `develop` after syncing.
+- Use the configured branches: `trabajo/desarrollador-1-borrador`, `trabajo/desarrollador-2-codigo-limpio`, and `integracion/entrega-final`. Keep the developer branches independent and merge reviewed Pull Requests into the integration branch.
 - Use atomic commits with Conventional Commit prefixes in English; push after each commit.
-- Open PRs to `develop`; a different teammate reviews each PR.
+- Open developer Pull Requests to `integracion/entrega-final`; after the integrated build and regression tests pass, prepare the final Pull Request from `integracion/entrega-final` to `main`.
 - Never commit directly to `main` or `develop`; never use `push --force`.
 - Meet the supplied requirement of at least six real atomic commits per member and three approved/merged PRs. Do not manufacture history or reviews.
 - Suggested branch families: `feature/accessory-module`, `feature/promotion-module`, `feature/warranty-module`, `feature/return-module`, `feature/exception-handling`, plus named `fix/`, `refactor/`, and `docs/` branches for integration fixes.
