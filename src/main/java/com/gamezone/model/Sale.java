@@ -16,19 +16,28 @@ public class Sale implements Serializable {
     private final String customerId;
     private final String sellerId;
     private final List<String> productIds;
+    private final List<SaleLine> lines;
     private double subtotal;
     private double discountAmount;
     private String appliedPromotionName;
     private double warrantyCost;
     private double total;
 
+    /** Backward-compatible constructor for sales without historical line snapshots. */
     public Sale(String id, LocalDateTime date, String customerId, String sellerId,
                 List<String> productIds, double total) {
+        this(id, date, customerId, sellerId, productIds, List.of(), total);
+    }
+
+    /** Creates a sale and stores immutable historical line snapshots. */
+    public Sale(String id, LocalDateTime date, String customerId, String sellerId,
+                List<String> productIds, List<SaleLine> lines, double total) {
         this.id = id;
         this.date = date;
         this.customerId = customerId;
         this.sellerId = sellerId;
         this.productIds = new ArrayList<>(productIds);
+        this.lines = new ArrayList<>(lines);
         this.subtotal = total;
         this.total = total;
     }
@@ -38,6 +47,17 @@ public class Sale implements Serializable {
     public String getCustomerId() { return customerId; }
     public String getSellerId() { return sellerId; }
     public List<String> getProductIds() { return Collections.unmodifiableList(productIds); }
+    public List<SaleLine> getLines() { return Collections.unmodifiableList(new ArrayList<>(lines)); }
+
+    public SaleLine findLine(String productId) {
+        if (productId == null) return null;
+        String normalized = productId.trim();
+        return lines.stream()
+                .filter(line -> line.getProductId().equals(normalized))
+                .findFirst()
+                .orElse(null);
+    }
+
     public double getSubtotal() { return subtotal; }
     public void setSubtotal(double subtotal) { this.subtotal = subtotal; }
     public double getDiscountAmount() { return discountAmount; }
