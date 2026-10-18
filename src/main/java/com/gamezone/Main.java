@@ -3,27 +3,44 @@ package com.gamezone;
 import com.gamezone.persistence.AccessoryRepository;
 import com.gamezone.persistence.PersonRepository;
 import com.gamezone.persistence.ProductRepository;
+import com.gamezone.persistence.PromotionRepository;
+import com.gamezone.persistence.ReturnRepository;
 import com.gamezone.persistence.SaleRepository;
+import com.gamezone.persistence.WarrantyRepository;
 import com.gamezone.service.AccessoryService;
 import com.gamezone.service.PersonService;
 import com.gamezone.service.ProductService;
+import com.gamezone.service.PromotionService;
+import com.gamezone.service.ReturnService;
 import com.gamezone.service.SaleService;
+import com.gamezone.service.WarrantyService;
 import com.gamezone.ui.ConsoleUI;
+
 import java.io.IOException;
 import java.nio.file.Path;
 
 /** Starts GameZone and wires all application layers. */
 public class Main {
-    /** Starts the console application. */
     public static void main(String[] args) {
         try {
             ProductService productService = new ProductService(new ProductRepository(Path.of("data", "products.dat")));
             AccessoryService accessoryService = new AccessoryService(new AccessoryRepository(Path.of("data", "accessories.csv")));
             PersonService personService = new PersonService(new PersonRepository(Path.of("data", "people.dat")));
             preloadSellers(personService);
-            SaleService saleService = new SaleService(new SaleRepository(Path.of("data", "sales.dat")),
-                    productService, personService, accessoryService);
-            new ConsoleUI(productService, accessoryService, personService, saleService).start();
+
+            PromotionService promotionService = new PromotionService(
+                    new PromotionRepository(Path.of("data", "promotions.csv")), productService, accessoryService);
+            WarrantyService warrantyService = new WarrantyService(
+                    new WarrantyRepository(Path.of("data", "warranties.csv")), productService);
+            SaleService saleService = new SaleService(
+                    new SaleRepository(Path.of("data", "sales.dat")), productService, personService,
+                    accessoryService, promotionService, warrantyService);
+            ReturnService returnService = new ReturnService(
+                    new ReturnRepository(Path.of("data", "returns.csv")), saleService, productService,
+                    accessoryService, warrantyService);
+
+            new ConsoleUI(productService, accessoryService, personService, saleService,
+                    promotionService, warrantyService, returnService).start();
         } catch (IOException | RuntimeException exception) {
             System.err.println("Unable to start GameZone: " + exception.getMessage());
         }
