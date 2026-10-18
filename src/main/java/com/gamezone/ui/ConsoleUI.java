@@ -1,12 +1,7 @@
 package com.gamezone.ui;
 
-import com.gamezone.model.Accessory;
-import com.gamezone.model.Person;
-import com.gamezone.model.Product;
-import com.gamezone.model.Promotion;
 import com.gamezone.model.Return;
 import com.gamezone.model.Sale;
-import com.gamezone.model.Warranty;
 import com.gamezone.service.AccessoryService;
 import com.gamezone.service.PersonService;
 import com.gamezone.service.ProductService;
@@ -34,6 +29,11 @@ public class ConsoleUI {
     private final WarrantyService warrantyService;
     private final ReturnService returnService;
     private final Scanner scanner = new Scanner(System.in);
+
+    /** Backward-compatible constructor for the original three-module UI. */
+    public ConsoleUI(ProductService productService, PersonService personService, SaleService saleService) {
+        this(productService, null, personService, saleService, null, null, null);
+    }
 
     public ConsoleUI(ProductService productService, AccessoryService accessoryService,
                      PersonService personService, SaleService saleService,
@@ -101,6 +101,7 @@ public class ConsoleUI {
     }
 
     private void accessoriesMenu() throws IOException {
+        requireModule(accessoryService, "AccessoryService");
         boolean back = false;
         while (!back) {
             System.out.println("\n--- Gestión de accesorios ---\n1. Registrar control\n2. Registrar cable\n3. Registrar memoria\n4. Listar todos\n5. Listar por tipo\n6. Consultar compatibles con consola\n0. Volver");
@@ -172,6 +173,7 @@ public class ConsoleUI {
     }
 
     private void promotionsMenu() throws IOException {
+        requireModule(promotionService, "PromotionService");
         boolean back = false;
         while (!back) {
             System.out.println("\n--- Gestión de promociones ---\n1. Registrar porcentaje\n2. Registrar categoría\n3. Registrar volumen\n4. Listar todas\n5. Listar vigentes\n0. Volver");
@@ -190,6 +192,7 @@ public class ConsoleUI {
     }
 
     private void returnsMenu() throws IOException {
+        requireModule(returnService, "ReturnService");
         boolean back = false;
         while (!back) {
             System.out.println("\n--- Gestión de devoluciones ---\n1. Registrar devolución\n2. Listar todas\n3. Por cliente\n4. Por venta\n5. Balance mensual\n0. Volver");
@@ -207,7 +210,7 @@ public class ConsoleUI {
         }
     }
 
-    private void registerReturn() throws Exception {
+    private void registerReturn() {
         String saleId = ask("ID de la venta: ");
         List<String> ids = Arrays.stream(ask("IDs a devolver separados por coma: ").split(","))
                 .map(String::trim).filter(s -> !s.isBlank()).toList();
@@ -224,6 +227,7 @@ public class ConsoleUI {
     }
 
     private void warrantiesMenu() {
+        requireModule(warrantyService, "WarrantyService");
         boolean back = false;
         while (!back) {
             System.out.println("\n--- Gestión de garantías ---\n1. Listar todas\n2. Listar vigentes\n3. Próximas a vencer\n0. Volver");
@@ -243,6 +247,10 @@ public class ConsoleUI {
         String value = ask("IDs de consolas compatibles separados por coma: ");
         if (value.isBlank()) return List.of();
         return Arrays.stream(value.split(",")).map(String::trim).filter(s -> !s.isBlank()).toList();
+    }
+
+    private void requireModule(Object module, String name) {
+        if (module == null) throw new IllegalStateException(name + " is not configured.");
     }
 
     private String ask(String prompt) { System.out.print(prompt); return scanner.nextLine().trim(); }
