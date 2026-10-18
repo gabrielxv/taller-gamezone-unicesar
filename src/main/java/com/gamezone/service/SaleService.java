@@ -5,6 +5,7 @@ import com.gamezone.model.Product;
 import com.gamezone.model.Promotion;
 import com.gamezone.model.Sale;
 import com.gamezone.persistence.SaleRepository;
+import com.gamezone.validation.SaleValidator;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -46,17 +47,15 @@ public class SaleService {
         this.sales = saleRepository.loadAll();
     }
 
-    /** Registers a sale without optional extended warranties. */
     public Sale registerSale(String customerId, String sellerId, List<String> itemIds) throws IOException {
         return registerSale(customerId, sellerId, itemIds, Map.of());
     }
 
-    /** Registers a sale using the integrated eight-requirement workflow. */
     public Sale registerSale(String customerId, String sellerId, List<String> itemIds,
                              Map<String, Boolean> extendedWarrantySelections) throws IOException {
-        requireText(customerId, "A customer is required.");
-        requireText(sellerId, "A seller is required.");
-        if (itemIds == null || itemIds.isEmpty()) throw new IllegalArgumentException("A sale must contain at least one item.");
+        SaleValidator.validateRequiredText(customerId, "A customer is required.");
+        SaleValidator.validateRequiredText(sellerId, "A seller is required.");
+        SaleValidator.validateItems(itemIds);
         requireIntegration();
         if (!peopleGateway.customerExists(customerId)) throw new IllegalArgumentException("Customer does not exist.");
         if (!peopleGateway.sellerExists(sellerId)) throw new IllegalArgumentException("Seller does not exist.");
@@ -93,19 +92,13 @@ public class SaleService {
     }
 
     public List<Sale> getAllSales() { return new ArrayList<>(sales); }
-
-    public List<Sale> getSalesByCustomer(String customerId) {
-        return sales.stream().filter(s -> s.getCustomerId().equals(customerId)).toList();
-    }
-
-    public List<Sale> getSalesBySeller(String sellerId) {
-        return sales.stream().filter(s -> s.getSellerId().equals(sellerId)).toList();
-    }
+    public List<Sale> getSalesByCustomer(String customerId) { return sales.stream().filter(s -> s.getCustomerId().equals(customerId)).toList(); }
+    public List<Sale> getSalesBySeller(String sellerId) { return sales.stream().filter(s -> s.getSellerId().equals(sellerId)).toList(); }
 
     private Map<String, Integer> resolveQuantities(List<String> itemIds) {
         Map<String, Integer> quantities = new LinkedHashMap<>();
         for (String itemId : itemIds) {
-            requireText(itemId, "Item ID is required.");
+            SaleValidator.validateRequiredText(itemId, "Item ID is required.");
             quantities.merge(itemId.trim(), 1, Integer::sum);
         }
         return quantities;
@@ -161,9 +154,5 @@ public class SaleService {
         if (productGateway == null || peopleGateway == null || accessoryService == null) {
             throw new IllegalStateException("Product, People, and Accessory modules must be integrated before registering a sale.");
         }
-    }
-
-    private void requireText(String value, String message) {
-        if (value == null || value.isBlank()) throw new IllegalArgumentException(message);
     }
 }
