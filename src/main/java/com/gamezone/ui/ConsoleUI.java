@@ -210,7 +210,7 @@ public class ConsoleUI {
         }
     }
 
-    private void registerReturn() {
+    private void registerReturn() throws IOException {
         String saleId = ask("ID de la venta: ");
         List<String> ids = Arrays.stream(ask("IDs a devolver separados por coma: ").split(","))
                 .map(String::trim).filter(s -> !s.isBlank()).toList();
