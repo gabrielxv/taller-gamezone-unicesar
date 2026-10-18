@@ -1,7 +1,6 @@
 package com.gamezone.service;
 
 import com.gamezone.model.Accessory;
-import com.gamezone.model.HistoricalSale;
 import com.gamezone.model.Product;
 import com.gamezone.model.Promotion;
 import com.gamezone.model.Sale;
@@ -28,24 +27,12 @@ public class SaleService {
     private final WarrantyService warrantyService;
     private final List<Sale> sales;
 
-    public SaleService(SaleRepository saleRepository) throws IOException {
-        this(saleRepository, null, null, null, null, null);
-    }
+    public SaleService(SaleRepository saleRepository) throws IOException { this(saleRepository, null, null, null, null, null); }
+    public SaleService(SaleRepository saleRepository, ProductGateway productGateway, PeopleGateway peopleGateway) throws IOException { this(saleRepository, productGateway, peopleGateway, null, null, null); }
+    public SaleService(SaleRepository saleRepository, ProductGateway productGateway, PeopleGateway peopleGateway, AccessoryService accessoryService) throws IOException { this(saleRepository, productGateway, peopleGateway, accessoryService, null, null); }
 
-    /** Backward-compatible constructor for the original product/people integration. */
-    public SaleService(SaleRepository saleRepository, ProductGateway productGateway,
-                       PeopleGateway peopleGateway) throws IOException {
-        this(saleRepository, productGateway, peopleGateway, null, null, null);
-    }
-
-    public SaleService(SaleRepository saleRepository, ProductGateway productGateway,
-                       PeopleGateway peopleGateway, AccessoryService accessoryService) throws IOException {
-        this(saleRepository, productGateway, peopleGateway, accessoryService, null, null);
-    }
-
-    public SaleService(SaleRepository saleRepository, ProductGateway productGateway,
-                       PeopleGateway peopleGateway, AccessoryService accessoryService,
-                       PromotionService promotionService, WarrantyService warrantyService) throws IOException {
+    public SaleService(SaleRepository saleRepository, ProductGateway productGateway, PeopleGateway peopleGateway,
+                       AccessoryService accessoryService, PromotionService promotionService, WarrantyService warrantyService) throws IOException {
         this.saleRepository = saleRepository;
         this.productGateway = productGateway;
         this.peopleGateway = peopleGateway;
@@ -55,12 +42,9 @@ public class SaleService {
         this.sales = saleRepository.loadAll();
     }
 
-    public Sale registerSale(String customerId, String sellerId, List<String> itemIds) throws IOException {
-        return registerSale(customerId, sellerId, itemIds, Map.of());
-    }
+    public Sale registerSale(String customerId, String sellerId, List<String> itemIds) throws IOException { return registerSale(customerId, sellerId, itemIds, Map.of()); }
 
-    public Sale registerSale(String customerId, String sellerId, List<String> itemIds,
-                             Map<String, Boolean> extendedWarrantySelections) throws IOException {
+    public Sale registerSale(String customerId, String sellerId, List<String> itemIds, Map<String, Boolean> extendedWarrantySelections) throws IOException {
         SaleValidator.validateRequiredText(customerId, "A customer is required.");
         SaleValidator.validateRequiredText(sellerId, "A seller is required.");
         SaleValidator.validateItems(itemIds);
@@ -73,26 +57,22 @@ public class SaleService {
         double subtotal = calculateSubtotal(quantities);
         Sale draft = new Sale(UUID.randomUUID().toString(), LocalDateTime.now(), customerId, sellerId, itemIds, subtotal);
         draft.setSubtotal(subtotal);
-
         Promotion bestPromotion = promotionService == null ? null : promotionService.findBestPromotionFor(draft);
         double discount = promotionService == null ? 0.0 : promotionService.calculateDiscount(bestPromotion, draft);
         List<SaleLine> lines = createHistoricalLines(quantities, subtotal, discount);
-        Sale sale = new HistoricalSale(draft.getId(), draft.getDate(), customerId, sellerId, itemIds, lines, subtotal);
+        Sale sale = new Sale(draft.getId(), draft.getDate(), customerId, sellerId, itemIds, lines, subtotal);
         sale.setSubtotal(subtotal);
         sale.setDiscountAmount(discount);
         sale.setAppliedPromotionName(bestPromotion == null ? null : bestPromotion.getName());
-
         double warrantyCost = assignWarranties(sale, extendedWarrantySelections == null ? Map.of() : extendedWarrantySelections);
         sale.setWarrantyCost(warrantyCost);
         sale.setTotal(subtotal - discount + warrantyCost);
-
         updateInventory(quantities);
         sales.add(sale);
         saleRepository.saveAll(sales);
         return sale;
     }
 
-    /** Preserves the original staged-integration API and its caller-supplied total. */
     public Sale registerSale(String customerId, String sellerId, List<String> itemIds, double total) throws IOException {
         SaleValidator.validateRequiredText(customerId, "A customer is required.");
         SaleValidator.validateRequiredText(sellerId, "A seller is required.");
@@ -110,17 +90,13 @@ public class SaleService {
 
     private Map<String, Integer> resolveQuantities(List<String> itemIds) {
         Map<String, Integer> quantities = new LinkedHashMap<>();
-        for (String itemId : itemIds) {
-            SaleValidator.validateRequiredText(itemId, "Item ID is required.");
-            quantities.merge(itemId.trim(), 1, Integer::sum);
-        }
+        for (String itemId : itemIds) { SaleValidator.validateRequiredText(itemId, "Item ID is required."); quantities.merge(itemId.trim(), 1, Integer::sum); }
         return quantities;
     }
 
     private void validateStock(Map<String, Integer> quantities) {
         for (Map.Entry<String, Integer> entry : quantities.entrySet()) {
-            String id = entry.getKey();
-            int quantity = entry.getValue();
+            String id = entry.getKey(); int quantity = entry.getValue();
             if (productGateway.exists(id)) {
                 if (!productGateway.hasStock(id, quantity)) throw new IllegalArgumentException("Insufficient stock for product: " + id);
                 continue;
@@ -144,20 +120,13 @@ public class SaleService {
     private List<SaleLine> createHistoricalLines(Map<String, Integer> quantities, double subtotal, double discount) {
         List<SaleLine> lines = new ArrayList<>();
         for (Map.Entry<String, Integer> entry : quantities.entrySet()) {
-            String id = entry.getKey();
-            int quantity = entry.getValue();
-            String name;
-            String category;
-            double price;
+            String id = entry.getKey(); int quantity = entry.getValue();
+            String name; String category; double price;
             if (productGateway.exists(id)) {
-                name = productGateway.getName(id);
-                category = productGateway.getCategory(id);
-                price = productGateway.getPrice(id);
+                name = productGateway.getName(id); category = productGateway.getCategory(id); price = productGateway.getPrice(id);
             } else {
                 Accessory accessory = accessoryService.findById(id);
-                name = accessory.getName();
-                category = accessory.getClass().getSimpleName().toUpperCase();
-                price = accessory.getPrice();
+                name = accessory.getName(); category = accessory.getClass().getSimpleName().toUpperCase(); price = accessory.getPrice();
             }
             double lineSubtotal = price * quantity;
             double lineDiscount = subtotal <= 0 ? 0.0 : discount * (lineSubtotal / subtotal);
@@ -168,15 +137,12 @@ public class SaleService {
 
     private double assignWarranties(Sale sale, Map<String, Boolean> selections) throws IOException {
         if (warrantyService == null) return 0.0;
-        double cost = 0.0;
-        ProductService productService = warrantyService.getProductService();
+        double cost = 0.0; ProductService productService = warrantyService.getProductService();
         for (String id : sale.getProductIds()) {
             if (!productGateway.exists(id) || !productGateway.isConsole(id)) continue;
             Product product = productService.findById(id);
             warrantyService.assignBasicWarranty(product, sale, LocalDate.now());
-            if (Boolean.TRUE.equals(selections.get(id))) {
-                cost += warrantyService.assignExtendedWarranty(product, sale, LocalDate.now()).getAdditionalCost();
-            }
+            if (Boolean.TRUE.equals(selections.get(id))) cost += warrantyService.assignExtendedWarranty(product, sale, LocalDate.now()).getAdditionalCost();
         }
         return cost;
     }
@@ -189,8 +155,6 @@ public class SaleService {
     }
 
     private void requireIntegration() {
-        if (productGateway == null || peopleGateway == null || accessoryService == null) {
-            throw new IllegalStateException("Product, People, and Accessory modules must be integrated before registering a sale.");
-        }
+        if (productGateway == null || peopleGateway == null || accessoryService == null) throw new IllegalStateException("Product, People, and Accessory modules must be integrated before registering a sale.");
     }
 }
