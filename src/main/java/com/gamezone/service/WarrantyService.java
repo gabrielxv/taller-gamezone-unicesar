@@ -6,6 +6,7 @@ import com.gamezone.model.Product;
 import com.gamezone.model.Sale;
 import com.gamezone.model.Warranty;
 import com.gamezone.persistence.WarrantyRepository;
+import com.gamezone.validation.WarrantyValidator;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -28,21 +29,19 @@ public class WarrantyService {
     public ProductService getProductService() { return productService; }
 
     public BasicWarranty assignBasicWarranty(Product product, Sale sale, LocalDate startDate) throws IOException {
+        validateProduct(product, startDate);
         requireConsole(product);
         Warranty existing = findWarrantyByProduct(product.getId(), sale.getId());
         if (existing != null) return (BasicWarranty) existing;
         BasicWarranty warranty = new BasicWarranty(UUID.randomUUID().toString(), product.getId(), sale.getId(), product.getPrice(), startDate);
-        warranties.add(warranty);
-        save();
-        return warranty;
+        warranties.add(warranty); save(); return warranty;
     }
 
     public ExtendedWarranty assignExtendedWarranty(Product product, Sale sale, LocalDate startDate) throws IOException {
+        validateProduct(product, startDate);
         requireConsole(product);
         ExtendedWarranty warranty = new ExtendedWarranty(UUID.randomUUID().toString(), product.getId(), sale.getId(), product.getPrice(), startDate);
-        warranties.add(warranty);
-        save();
-        return warranty;
+        warranties.add(warranty); save(); return warranty;
     }
 
     public Warranty findWarrantyByProduct(String productId, String saleId) {
@@ -64,13 +63,17 @@ public class WarrantyService {
     }
 
     public double cancelWarranties(String productId, String saleId) throws IOException {
-        double refundable = warranties.stream()
-                .filter(w -> w.getProductId().equals(productId) && w.getSaleId().equals(saleId))
-                .filter(w -> w instanceof ExtendedWarranty)
-                .mapToDouble(Warranty::getAdditionalCost).sum();
+        double refundable = warranties.stream().filter(w -> w.getProductId().equals(productId) && w.getSaleId().equals(saleId))
+                .filter(w -> w instanceof ExtendedWarranty).mapToDouble(Warranty::getAdditionalCost).sum();
         warranties.removeIf(w -> w.getProductId().equals(productId) && w.getSaleId().equals(saleId));
         save();
         return refundable;
+    }
+
+    private void validateProduct(Product product, LocalDate startDate) {
+        if (product == null) throw new IllegalArgumentException("Product is required.");
+        WarrantyValidator.validateStartDate(startDate);
+        WarrantyValidator.validateProductPrice(product.getPrice());
     }
 
     private void requireConsole(Product product) {
