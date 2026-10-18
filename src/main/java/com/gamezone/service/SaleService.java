@@ -150,10 +150,9 @@ public class SaleService {
             String category;
             double price;
             if (productGateway.exists(id)) {
-                Product product = ((ProductService) productGateway).findById(id);
-                name = product.getName();
+                name = productGateway.getName(id);
                 category = productGateway.getCategory(id);
-                price = product.getPrice();
+                price = productGateway.getPrice(id);
             } else {
                 Accessory accessory = accessoryService.findById(id);
                 name = accessory.getName();
