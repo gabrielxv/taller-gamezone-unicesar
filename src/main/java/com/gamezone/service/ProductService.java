@@ -77,6 +77,9 @@ public class ProductService implements ProductGateway {
     public boolean exists(String productId) { return findNullable(productId) != null; }
 
     @Override
+    public String getName(String productId) { return require(productId).getName(); }
+
+    @Override
     public double getPrice(String productId) { return require(productId).getPrice(); }
 
     @Override
