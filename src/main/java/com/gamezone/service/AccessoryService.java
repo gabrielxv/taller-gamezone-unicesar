@@ -5,6 +5,7 @@ import com.gamezone.model.Cable;
 import com.gamezone.model.Controller;
 import com.gamezone.model.Memory;
 import com.gamezone.persistence.AccessoryRepository;
+import com.gamezone.validation.AccessoryValidator;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public class AccessoryService {
 
     public Accessory registerController(String id, String name, double price, int stock,
                                         List<String> compatibleConsoleIds, String connectionType) throws IOException {
+        validateBase(id, price, stock);
         ensureUnique(id);
         Accessory accessory = new Controller(id, name, price, stock, compatibleConsoleIds, connectionType);
         accessories.add(accessory); save(); return accessory;
@@ -31,6 +33,7 @@ public class AccessoryService {
     public Accessory registerCable(String id, String name, double price, int stock,
                                    List<String> compatibleConsoleIds, double lengthMeters,
                                    String connectorType) throws IOException {
+        validateBase(id, price, stock);
         ensureUnique(id);
         Accessory accessory = new Cable(id, name, price, stock, compatibleConsoleIds, lengthMeters, connectorType);
         accessories.add(accessory); save(); return accessory;
@@ -39,6 +42,7 @@ public class AccessoryService {
     public Accessory registerMemory(String id, String name, double price, int stock,
                                     List<String> compatibleConsoleIds, int capacityGb,
                                     String memoryType) throws IOException {
+        validateBase(id, price, stock);
         ensureUnique(id);
         Accessory accessory = new Memory(id, name, price, stock, compatibleConsoleIds, capacityGb, memoryType);
         accessories.add(accessory); save(); return accessory;
@@ -49,8 +53,7 @@ public class AccessoryService {
     public List<Accessory> listAccessoriesByType(String type) {
         if (type == null || type.isBlank()) return new ArrayList<>();
         String normalized = type.trim().toUpperCase(Locale.ROOT);
-        return accessories.stream()
-                .filter(a -> a.getClass().getSimpleName().toUpperCase(Locale.ROOT).equals(normalized)).toList();
+        return accessories.stream().filter(a -> a.getClass().getSimpleName().toUpperCase(Locale.ROOT).equals(normalized)).toList();
     }
 
     public List<Accessory> findAccessoriesCompatibleWith(String consoleId) {
@@ -72,10 +75,15 @@ public class AccessoryService {
         save();
     }
 
-    /** Restores accessory inventory after a successful return. */
     public void restoreStock(String accessoryId, int quantity) throws IOException {
         if (quantity <= 0) throw new IllegalArgumentException("Quantity must be positive.");
         updateStock(accessoryId, quantity);
+    }
+
+    private void validateBase(String id, double price, int stock) {
+        AccessoryValidator.validateId(id);
+        AccessoryValidator.validatePrice(price);
+        AccessoryValidator.validateStock(stock);
     }
 
     private Accessory requireAccessory(String id) {
@@ -85,7 +93,6 @@ public class AccessoryService {
     }
 
     private void ensureUnique(String id) {
-        if (id == null || id.isBlank()) throw new IllegalArgumentException("Accessory ID is required.");
         if (findById(id) != null) throw new IllegalArgumentException("Accessory ID already exists.");
     }
 
