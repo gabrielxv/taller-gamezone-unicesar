@@ -9,7 +9,7 @@ import java.util.List;
 
 /** Represents a completed sales transaction in the GameZone system. */
 public class Sale implements Serializable {
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 1L;
 
     private final String id;
     private final LocalDateTime date;
@@ -49,13 +49,11 @@ public class Sale implements Serializable {
     public double getTotal() { return total; }
     public void setTotal(double total) { this.total = total; }
 
-    /** Returns whether the sale is still within the thirty-day return period. */
     public boolean canBeReturned() {
         long days = ChronoUnit.DAYS.between(date.toLocalDate(), LocalDateTime.now().toLocalDate());
         return days >= 0 && days <= 30;
     }
 
-    /** Generates the customer-facing sale receipt in Spanish. */
     public String generateReceipt() {
         String promotion = appliedPromotionName == null ? "Ninguna" : appliedPromotionName;
         return "Recibo de venta\n" +
