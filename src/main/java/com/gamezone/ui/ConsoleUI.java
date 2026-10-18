@@ -3,235 +3,250 @@ package com.gamezone.ui;
 import com.gamezone.model.Accessory;
 import com.gamezone.model.Person;
 import com.gamezone.model.Product;
+import com.gamezone.model.Promotion;
+import com.gamezone.model.Return;
 import com.gamezone.model.Sale;
+import com.gamezone.model.Warranty;
 import com.gamezone.service.AccessoryService;
 import com.gamezone.service.PersonService;
 import com.gamezone.service.ProductService;
+import com.gamezone.service.PromotionService;
+import com.gamezone.service.ReturnService;
 import com.gamezone.service.SaleService;
+import com.gamezone.service.WarrantyService;
+
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
-/** Provides the complete console interface for GameZone products, accessories, people, and sales. */
+/** Provides the Spanish console interface for all integrated GameZone modules. */
 public class ConsoleUI {
     private final ProductService productService;
     private final AccessoryService accessoryService;
     private final PersonService personService;
     private final SaleService saleService;
+    private final PromotionService promotionService;
+    private final WarrantyService warrantyService;
+    private final ReturnService returnService;
     private final Scanner scanner = new Scanner(System.in);
 
-    /** Creates the console interface with the application services. */
     public ConsoleUI(ProductService productService, AccessoryService accessoryService,
-                     PersonService personService, SaleService saleService) {
+                     PersonService personService, SaleService saleService,
+                     PromotionService promotionService, WarrantyService warrantyService,
+                     ReturnService returnService) {
         this.productService = productService;
         this.accessoryService = accessoryService;
         this.personService = personService;
         this.saleService = saleService;
+        this.promotionService = promotionService;
+        this.warrantyService = warrantyService;
+        this.returnService = returnService;
     }
 
-    /** Starts the main menu loop. */
     public void start() {
         boolean running = true;
         while (running) {
-            System.out.println("
-=== GameZone Unicesar ===");
-            System.out.println("1. Products
-2. Accessories
-3. People
-4. Sales
-0. Exit");
-            switch (scanner.nextLine().trim()) {
-                case "1" -> productsMenu();
-                case "2" -> accessoriesMenu();
-                case "3" -> peopleMenu();
-                case "4" -> salesMenu();
-                case "0" -> running = false;
-                default -> System.out.println("Invalid option.");
+            System.out.println("\n=== GameZone Unicesar ===");
+            System.out.println("1. Gestión de productos\n2. Gestión de accesorios\n3. Gestión de personas\n"
+                    + "4. Gestión de ventas\n5. Gestión de promociones\n6. Gestión de devoluciones\n"
+                    + "7. Gestión de garantías\n0. Salir");
+            try {
+                switch (scanner.nextLine().trim()) {
+                    case "1" -> productsMenu();
+                    case "2" -> accessoriesMenu();
+                    case "3" -> peopleMenu();
+                    case "4" -> salesMenu();
+                    case "5" -> promotionsMenu();
+                    case "6" -> returnsMenu();
+                    case "7" -> warrantiesMenu();
+                    case "0" -> running = false;
+                    default -> System.out.println("Opción inválida.");
+                }
+            } catch (Exception exception) {
+                System.out.println("Error: " + exception.getMessage());
             }
         }
     }
 
-    private void productsMenu() {
+    private void productsMenu() throws IOException {
         boolean back = false;
         while (!back) {
-            System.out.println("
---- Products ---
-1. Register video game
-2. Register console
-3. List products
-4. Update stock
-0. Back");
+            System.out.println("\n--- Gestión de productos ---\n1. Registrar videojuego\n2. Registrar consola\n3. Listar productos\n4. Actualizar stock\n0. Volver");
             try {
                 switch (scanner.nextLine().trim()) {
                     case "1" -> registerVideoGame();
                     case "2" -> registerConsole();
-                    case "3" -> printProducts(productService.getAllProducts());
-                    case "4" -> updateStock();
+                    case "3" -> productService.getAllProducts().forEach(System.out::println);
+                    case "4" -> productService.updateStock(ask("ID del producto: "), askInt("Cambio de stock: "));
                     case "0" -> back = true;
-                    default -> System.out.println("Invalid option.");
+                    default -> System.out.println("Opción inválida.");
                 }
-            } catch (IOException | RuntimeException e) {
-                System.out.println("Error: " + e.getMessage());
-            }
+            } catch (Exception exception) { System.out.println("Error: " + exception.getMessage()); }
         }
     }
 
     private void registerVideoGame() throws IOException {
-        String id = ask("ID: ");
-        String name = ask("Name: ");
-        double price = askDouble("Price: ");
-        int stock = askInt("Stock: ");
-        String platform = ask("Platform: ");
-        String genre = ask("Genre: ");
-        productService.registerVideoGame(id, name, price, stock, platform, genre);
-        System.out.println("Video game registered.");
+        productService.registerVideoGame(ask("ID: "), ask("Nombre: "), askDouble("Precio: "), askInt("Stock: "), ask("Plataforma: "), ask("Género: "));
+        System.out.println("Videojuego registrado correctamente.");
     }
 
     private void registerConsole() throws IOException {
-        String id = ask("ID: ");
-        String name = ask("Name: ");
-        double price = askDouble("Price: ");
-        int stock = askInt("Stock: ");
-        String manufacturer = ask("Manufacturer: ");
-        String model = ask("Model: ");
-        productService.registerConsole(id, name, price, stock, manufacturer, model);
-        System.out.println("Console registered.");
+        productService.registerConsole(ask("ID: "), ask("Nombre: "), askDouble("Precio: "), askInt("Stock: "), ask("Fabricante: "), ask("Modelo: "));
+        System.out.println("Consola registrada correctamente.");
     }
 
-    private void updateStock() throws IOException {
-        productService.updateStock(ask("Product ID: "), askInt("Quantity change: "));
-        System.out.println("Stock updated.");
-    }
-
-    private void accessoriesMenu() {
+    private void accessoriesMenu() throws IOException {
         boolean back = false;
         while (!back) {
-            System.out.println("
---- Gestión de accesorios ---");
-            System.out.println("1. Registrar un nuevo control");
-            System.out.println("2. Registrar un nuevo cable");
-            System.out.println("3. Registrar una nueva memoria");
-            System.out.println("4. Listar todos los accesorios");
-            System.out.println("5. Listar accesorios por tipo");
-            System.out.println("6. Consultar accesorios compatibles con una consola");
-            System.out.println("0. Volver");
+            System.out.println("\n--- Gestión de accesorios ---\n1. Registrar control\n2. Registrar cable\n3. Registrar memoria\n4. Listar todos\n5. Listar por tipo\n6. Consultar compatibles con consola\n0. Volver");
             try {
                 switch (scanner.nextLine().trim()) {
-                    case "1" -> registerController();
-                    case "2" -> registerCable();
-                    case "3" -> registerMemory();
-                    case "4" -> printAccessories(accessoryService.listAllAccessories());
-                    case "5" -> printAccessories(accessoryService.listAccessoriesByType(ask("Tipo (CONTROLLER/CABLE/MEMORY): ")));
-                    case "6" -> printAccessories(accessoryService.findAccessoriesCompatibleWith(ask("Console ID: ")));
+                    case "1" -> accessoryService.registerController(ask("ID: "), ask("Nombre: "), askDouble("Precio: "), askInt("Stock: "), askIds(), ask("Tipo de conexión: "));
+                    case "2" -> accessoryService.registerCable(ask("ID: "), ask("Nombre: "), askDouble("Precio: "), askInt("Stock: "), askIds(), askDouble("Longitud en metros: "), ask("Tipo de conector: "));
+                    case "3" -> accessoryService.registerMemory(ask("ID: "), ask("Nombre: "), askDouble("Precio: "), askInt("Stock: "), askIds(), askInt("Capacidad en GB: "), ask("Tipo de memoria: "));
+                    case "4" -> accessoryService.listAllAccessories().forEach(System.out::println);
+                    case "5" -> accessoryService.listAccessoriesByType(ask("Tipo (CONTROLLER/CABLE/MEMORY): ")).forEach(System.out::println);
+                    case "6" -> accessoryService.findAccessoriesCompatibleWith(ask("ID de consola: ")).forEach(System.out::println);
                     case "0" -> back = true;
                     default -> System.out.println("Opción inválida.");
                 }
-            } catch (IOException | RuntimeException e) {
-                System.out.println("Error: " + e.getMessage());
-            }
+            } catch (Exception exception) { System.out.println("Error: " + exception.getMessage()); }
         }
     }
 
-    private void registerController() throws IOException {
-        accessoryService.registerController(ask("ID: "), ask("Nombre: "), askDouble("Precio: "), askInt("Cantidad: "),
-                askConsoleIds(), ask("Tipo de conexión (inalámbrico/alámbrico): "));
-        System.out.println("Control registrado correctamente.");
-    }
-
-    private void registerCable() throws IOException {
-        accessoryService.registerCable(ask("ID: "), ask("Nombre: "), askDouble("Precio: "), askInt("Cantidad: "),
-                askConsoleIds(), askDouble("Longitud en metros: "), ask("Tipo de conector: "));
-        System.out.println("Cable registrado correctamente.");
-    }
-
-    private void registerMemory() throws IOException {
-        accessoryService.registerMemory(ask("ID: "), ask("Nombre: "), askDouble("Precio: "), askInt("Cantidad: "),
-                askConsoleIds(), askInt("Capacidad en GB: "), ask("Tipo de memoria: "));
-        System.out.println("Memoria registrada correctamente.");
-    }
-
-    private List<String> askConsoleIds() {
-        String value = ask("IDs de consolas compatibles separados por coma (opcional): ");
-        if (value.isBlank()) return new ArrayList<>();
-        return Arrays.stream(value.split(",")).map(String::trim).filter(id -> !id.isBlank()).collect(Collectors.toList());
-    }
-
-    private void peopleMenu() {
+    private void peopleMenu() throws IOException {
         boolean back = false;
         while (!back) {
-            System.out.println("
---- People ---
-1. Register client
-2. List clients
-3. List sellers
-0. Back");
+            System.out.println("\n--- Gestión de personas ---\n1. Registrar cliente\n2. Listar clientes\n3. Listar vendedores\n0. Volver");
             try {
                 switch (scanner.nextLine().trim()) {
-                    case "1" -> registerClient();
-                    case "2" -> printPeople(personService.getClients());
-                    case "3" -> printPeople(personService.getSellers());
+                    case "1" -> personService.registerClient(ask("ID: "), ask("Nombre: "), ask("Correo: "), ask("Teléfono: "), ask("Nivel de membresía: "));
+                    case "2" -> personService.getClients().forEach(System.out::println);
+                    case "3" -> personService.getSellers().forEach(System.out::println);
                     case "0" -> back = true;
-                    default -> System.out.println("Invalid option.");
+                    default -> System.out.println("Opción inválida.");
                 }
-            } catch (IOException | RuntimeException e) {
-                System.out.println("Error: " + e.getMessage());
-            }
+            } catch (Exception exception) { System.out.println("Error: " + exception.getMessage()); }
         }
     }
 
-    private void registerClient() throws IOException {
-        String id = ask("ID: "), name = ask("Name: "), email = ask("Email: "), phone = ask("Phone: "), level = ask("Membership level: ");
-        personService.registerClient(id, name, email, phone, level);
-        System.out.println("Client registered.");
-    }
-
-    private void salesMenu() {
+    private void salesMenu() throws IOException {
         boolean back = false;
         while (!back) {
-            System.out.println("
---- Sales ---
-1. Register sale
-2. All sales
-3. Client purchase history
-4. Seller sales history
-0. Back");
+            System.out.println("\n--- Gestión de ventas ---\n1. Registrar venta\n2. Listar ventas\n3. Historial por cliente\n4. Historial por vendedor\n0. Volver");
             try {
                 switch (scanner.nextLine().trim()) {
                     case "1" -> registerSale();
-                    case "2" -> printSales(saleService.getAllSales());
-                    case "3" -> printSales(saleService.getSalesByCustomer(ask("Customer ID: ")));
-                    case "4" -> printSales(saleService.getSalesBySeller(ask("Seller ID: ")));
+                    case "2" -> saleService.getAllSales().forEach(s -> System.out.println(s.generateReceipt() + "\nID: " + s.getId()));
+                    case "3" -> saleService.getSalesByCustomer(ask("ID del cliente: ")).forEach(s -> System.out.println(s.generateReceipt()));
+                    case "4" -> saleService.getSalesBySeller(ask("ID del vendedor: ")).forEach(s -> System.out.println(s.generateReceipt()));
                     case "0" -> back = true;
-                    default -> System.out.println("Invalid option.");
+                    default -> System.out.println("Opción inválida.");
                 }
-            } catch (IOException | RuntimeException e) {
-                System.out.println("Error: " + e.getMessage());
-            }
+            } catch (Exception exception) { System.out.println("Error: " + exception.getMessage()); }
         }
     }
 
     private void registerSale() throws IOException {
-        String customer = ask("Customer ID: ");
-        String seller = ask("Seller ID: ");
+        String customerId = ask("ID del cliente: ");
+        String sellerId = ask("ID del vendedor: ");
         List<String> ids = new ArrayList<>();
-        System.out.println("Ingrese IDs de productos o accesorios; escriba 0 para finalizar.");
         while (true) {
-            String id = ask("Product/accessory ID: ");
+            String id = ask("ID de producto/accesorio (0 para terminar): ");
             if ("0".equals(id)) break;
             if (!id.isBlank()) ids.add(id);
         }
-        Sale sale = saleService.registerSale(customer, seller, ids);
-        System.out.println("Venta registrada. Total: " + sale.getTotal());
+        Map<String, Boolean> warranties = new HashMap<>();
+        for (String id : ids) {
+            if (productService.exists(id) && productService.isConsole(id)) {
+                warranties.put(id, ask("¿Garantía extendida para " + id + "? (s/n): ").equalsIgnoreCase("s"));
+            }
+        }
+        Sale sale = saleService.registerSale(customerId, sellerId, ids, warranties);
+        System.out.println(sale.generateReceipt());
+    }
+
+    private void promotionsMenu() throws IOException {
+        boolean back = false;
+        while (!back) {
+            System.out.println("\n--- Gestión de promociones ---\n1. Registrar porcentaje\n2. Registrar categoría\n3. Registrar volumen\n4. Listar todas\n5. Listar vigentes\n0. Volver");
+            try {
+                switch (scanner.nextLine().trim()) {
+                    case "1" -> promotionService.registerPercentageDiscount(ask("ID: "), ask("Nombre: "), askDate("Inicio (AAAA-MM-DD): "), askDate("Fin (AAAA-MM-DD): "), askDouble("Porcentaje: "));
+                    case "2" -> promotionService.registerCategoryDiscount(ask("ID: "), ask("Nombre: "), askDate("Inicio (AAAA-MM-DD): "), askDate("Fin (AAAA-MM-DD): "), askDouble("Porcentaje: "), ask("Categoría (VIDEOGAME/CONSOLE): "));
+                    case "3" -> promotionService.registerBulkPurchaseDiscount(ask("ID: "), ask("Nombre: "), askDate("Inicio (AAAA-MM-DD): "), askDate("Fin (AAAA-MM-DD): "), askInt("Cantidad mínima: "), askDouble("Porcentaje: "));
+                    case "4" -> promotionService.listAllPromotions().forEach(p -> System.out.println(p.getId() + " | " + p.getName() + " | " + p.getType()));
+                    case "5" -> promotionService.listActivePromotions().forEach(p -> System.out.println(p.getId() + " | " + p.getName() + " | " + p.getType()));
+                    case "0" -> back = true;
+                    default -> System.out.println("Opción inválida.");
+                }
+            } catch (Exception exception) { System.out.println("Error: " + exception.getMessage()); }
+        }
+    }
+
+    private void returnsMenu() throws IOException {
+        boolean back = false;
+        while (!back) {
+            System.out.println("\n--- Gestión de devoluciones ---\n1. Registrar devolución\n2. Listar todas\n3. Por cliente\n4. Por venta\n5. Balance mensual\n0. Volver");
+            try {
+                switch (scanner.nextLine().trim()) {
+                    case "1" -> registerReturn();
+                    case "2" -> returnService.viewAllReturns().forEach(r -> System.out.println(r.getId() + " | " + r.getSaleId() + " | " + r.getRefundAmount()));
+                    case "3" -> returnService.viewReturnsByCustomer(ask("ID del cliente: ")).forEach(r -> System.out.println(r.getId() + " | " + r.getRefundAmount()));
+                    case "4" -> returnService.viewReturnsBySale(ask("ID de la venta: ")).forEach(r -> System.out.println(r.getId() + " | " + r.getRefundAmount()));
+                    case "5" -> showMonthlyBalance();
+                    case "0" -> back = true;
+                    default -> System.out.println("Opción inválida.");
+                }
+            } catch (Exception exception) { System.out.println("Error: " + exception.getMessage()); }
+        }
+    }
+
+    private void registerReturn() throws Exception {
+        String saleId = ask("ID de la venta: ");
+        List<String> ids = Arrays.stream(ask("IDs a devolver separados por coma: ").split(","))
+                .map(String::trim).filter(s -> !s.isBlank()).toList();
+        Return value = returnService.registerReturn(saleId, ids, ask("Motivo: "));
+        System.out.println("Devolución registrada por " + value.getRefundAmount());
+    }
+
+    private void showMonthlyBalance() {
+        int month = askInt("Mes: ");
+        int year = askInt("Año: ");
+        double sales = returnService.calculateMonthlySales(month, year);
+        double returns = returnService.calculateMonthlyReturns(month, year);
+        System.out.println("Ventas: " + sales + "\nDevoluciones: " + returns + "\nBalance neto: " + (sales - returns));
+    }
+
+    private void warrantiesMenu() {
+        boolean back = false;
+        while (!back) {
+            System.out.println("\n--- Gestión de garantías ---\n1. Listar todas\n2. Listar vigentes\n3. Próximas a vencer\n0. Volver");
+            try {
+                switch (scanner.nextLine().trim()) {
+                    case "1" -> warrantyService.listAllWarranties().forEach(w -> System.out.println(w.generateWarrantyCertificate()));
+                    case "2" -> warrantyService.listActiveWarranties().forEach(w -> System.out.println(w.generateWarrantyCertificate()));
+                    case "3" -> warrantyService.listWarrantiesExpiringSoon(askInt("Días: ")).forEach(w -> System.out.println(w.generateWarrantyCertificate()));
+                    case "0" -> back = true;
+                    default -> System.out.println("Opción inválida.");
+                }
+            } catch (Exception exception) { System.out.println("Error: " + exception.getMessage()); }
+        }
+    }
+
+    private List<String> askIds() {
+        String value = ask("IDs de consolas compatibles separados por coma: ");
+        if (value.isBlank()) return List.of();
+        return Arrays.stream(value.split(",")).map(String::trim).filter(s -> !s.isBlank()).toList();
     }
 
     private String ask(String prompt) { System.out.print(prompt); return scanner.nextLine().trim(); }
     private int askInt(String prompt) { return Integer.parseInt(ask(prompt)); }
     private double askDouble(String prompt) { return Double.parseDouble(ask(prompt)); }
-    private void printProducts(List<Product> products) { if (products.isEmpty()) System.out.println("No products found."); else products.forEach(System.out::println); }
-    private void printAccessories(List<Accessory> accessories) { if (accessories.isEmpty()) System.out.println("No accessories found."); else accessories.forEach(System.out::println); }
-    private void printPeople(List<? extends Person> people) { if (people.isEmpty()) System.out.println("No people found."); else people.forEach(System.out::println); }
-    private void printSales(List<Sale> sales) { if (sales.isEmpty()) System.out.println("No sales found."); else sales.forEach(s -> System.out.println(s.getId()+" | "+s.getDate()+" | customer="+s.getCustomerId()+" | seller="+s.getSellerId()+" | items="+s.getProductIds()+" | total="+s.getTotal())); }
+    private LocalDate askDate(String prompt) { return LocalDate.parse(ask(prompt)); }
 }
