@@ -12,7 +12,9 @@ import com.gamezone.validation.ReturnValidator;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /** Coordinates return rules, inventory restoration, refunds, and monthly reporting. */
@@ -50,9 +52,7 @@ public class ReturnService {
         double refund = calculateHistoricalRefund(sale, normalized);
         double warrantyRefund = 0.0;
         for (String itemId : normalized) {
-            if (productService.exists(itemId) && productService.isConsole(itemId)) {
-                warrantyRefund += warrantyService.cancelWarranties(itemId, saleId);
-            }
+            if (productService.exists(itemId) && productService.isConsole(itemId)) warrantyRefund += warrantyService.cancelWarranties(itemId, saleId);
             if (productService.exists(itemId)) productService.restoreStock(itemId, 1);
             else accessoryService.restoreStock(itemId, 1);
         }
@@ -65,50 +65,38 @@ public class ReturnService {
     }
 
     public List<Return> viewAllReturns() { return new ArrayList<>(returns); }
-
     public List<Return> viewReturnsByCustomer(String customerId) {
         return returns.stream().filter(r -> saleService.getAllSales().stream()
                 .anyMatch(s -> s.getId().equals(r.getSaleId()) && s.getCustomerId().equals(customerId))).toList();
     }
-
     public List<Return> viewReturnsBySale(String saleId) { return returns.stream().filter(r -> r.getSaleId().equals(saleId)).toList(); }
-
     public double calculateMonthlySales(int month, int year) {
-        return saleService.getAllSales().stream()
-                .filter(s -> s.getDate().getMonthValue() == month && s.getDate().getYear() == year)
-                .mapToDouble(Sale::getTotal).sum();
+        return saleService.getAllSales().stream().filter(s -> s.getDate().getMonthValue() == month && s.getDate().getYear() == year).mapToDouble(Sale::getTotal).sum();
     }
-
     public double calculateMonthlyReturns(int month, int year) {
-        return returns.stream()
-                .filter(r -> r.getDate().getMonthValue() == month && r.getDate().getYear() == year)
-                .mapToDouble(Return::getRefundAmount).sum();
+        return returns.stream().filter(r -> r.getDate().getMonthValue() == month && r.getDate().getYear() == year).mapToDouble(Return::getRefundAmount).sum();
     }
-
-    public double generateMonthlyBalance(int month, int year) {
-        return calculateMonthlySales(month, year) - calculateMonthlyReturns(month, year);
-    }
+    public double generateMonthlyBalance(int month, int year) { return calculateMonthlySales(month, year) - calculateMonthlyReturns(month, year); }
 
     private boolean alreadyReturned(String saleId, String itemId) {
         return returns.stream().filter(r -> r.getSaleId().equals(saleId)).anyMatch(r -> r.getItemIds().contains(itemId));
     }
 
     private double calculateHistoricalRefund(Sale sale, List<String> itemIds) {
-        if (sale instanceof com.gamezone.model.HistoricalSale historicalSale) {
+        if (!sale.getLines().isEmpty()) {
             double refund = 0.0;
             for (String itemId : itemIds) {
-                SaleLine line = historicalSale.findLine(itemId);
+                SaleLine line = sale.findLine(itemId);
                 if (line == null) throw new BusinessRuleException("No existe información histórica del producto " + itemId + " en la venta.");
                 refund += line.getLineTotal() / line.getQuantity();
             }
             return refund;
         }
-
         return Return.calculateRefundAmount(sale, itemIds, resolveLegacyPrices(itemIds));
     }
 
-    private java.util.Map<String, Double> resolveLegacyPrices(List<String> ids) {
-        java.util.Map<String, Double> prices = new java.util.HashMap<>();
+    private Map<String, Double> resolveLegacyPrices(List<String> ids) {
+        Map<String, Double> prices = new HashMap<>();
         for (String id : ids) {
             if (productService.exists(id)) prices.put(id, productService.getPrice(id));
             else {
