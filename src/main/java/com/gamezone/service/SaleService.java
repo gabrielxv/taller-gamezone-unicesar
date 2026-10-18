@@ -30,6 +30,12 @@ public class SaleService {
         this(saleRepository, null, null, null, null, null);
     }
 
+    /** Backward-compatible constructor for the original product/people integration. */
+    public SaleService(SaleRepository saleRepository, ProductGateway productGateway,
+                       PeopleGateway peopleGateway) throws IOException {
+        this(saleRepository, productGateway, peopleGateway, null, null, null);
+    }
+
     public SaleService(SaleRepository saleRepository, ProductGateway productGateway,
                        PeopleGateway peopleGateway, AccessoryService accessoryService) throws IOException {
         this(saleRepository, productGateway, peopleGateway, accessoryService, null, null);
@@ -81,12 +87,14 @@ public class SaleService {
         return sale;
     }
 
+    /** Preserves the original staged-integration API and its caller-supplied total. */
     public Sale registerSale(String customerId, String sellerId, List<String> itemIds, double total) throws IOException {
-        Sale sale = registerSale(customerId, sellerId, itemIds, Map.of());
-        sale.setSubtotal(total);
-        sale.setDiscountAmount(0);
-        sale.setWarrantyCost(0);
-        sale.setTotal(total);
+        SaleValidator.validateRequiredText(customerId, "A customer is required.");
+        SaleValidator.validateRequiredText(sellerId, "A seller is required.");
+        SaleValidator.validateItems(itemIds);
+        if (!Double.isFinite(total) || total < 0) throw new IllegalArgumentException("The sale total cannot be negative.");
+        Sale sale = new Sale(UUID.randomUUID().toString(), LocalDateTime.now(), customerId, sellerId, itemIds, total);
+        sales.add(sale);
         saleRepository.saveAll(sales);
         return sale;
     }
