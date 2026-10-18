@@ -5,6 +5,7 @@ import java.io.IOException;
 /** Defines the minimum product operations required by integration services. */
 public interface ProductGateway {
     boolean exists(String productId);
+    String getName(String productId);
     double getPrice(String productId);
     String getCategory(String productId);
     boolean isConsole(String productId);
