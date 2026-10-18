@@ -1,9 +1,11 @@
 package com.gamezone.service;
 
 import com.gamezone.model.Accessory;
+import com.gamezone.model.HistoricalSale;
 import com.gamezone.model.Product;
 import com.gamezone.model.Promotion;
 import com.gamezone.model.Sale;
+import com.gamezone.model.SaleLine;
 import com.gamezone.persistence.SaleRepository;
 import com.gamezone.validation.SaleValidator;
 
@@ -69,11 +71,14 @@ public class SaleService {
         Map<String, Integer> quantities = resolveQuantities(itemIds);
         validateStock(quantities);
         double subtotal = calculateSubtotal(quantities);
-        Sale sale = new Sale(UUID.randomUUID().toString(), LocalDateTime.now(), customerId, sellerId, itemIds, subtotal);
-        sale.setSubtotal(subtotal);
+        Sale draft = new Sale(UUID.randomUUID().toString(), LocalDateTime.now(), customerId, sellerId, itemIds, subtotal);
+        draft.setSubtotal(subtotal);
 
-        Promotion bestPromotion = promotionService == null ? null : promotionService.findBestPromotionFor(sale);
-        double discount = promotionService == null ? 0.0 : promotionService.calculateDiscount(bestPromotion, sale);
+        Promotion bestPromotion = promotionService == null ? null : promotionService.findBestPromotionFor(draft);
+        double discount = promotionService == null ? 0.0 : promotionService.calculateDiscount(bestPromotion, draft);
+        List<SaleLine> lines = createHistoricalLines(quantities, subtotal, discount);
+        Sale sale = new HistoricalSale(draft.getId(), draft.getDate(), customerId, sellerId, itemIds, lines, subtotal);
+        sale.setSubtotal(subtotal);
         sale.setDiscountAmount(discount);
         sale.setAppliedPromotionName(bestPromotion == null ? null : bestPromotion.getName());
 
@@ -134,6 +139,32 @@ public class SaleService {
             subtotal += price * entry.getValue();
         }
         return subtotal;
+    }
+
+    private List<SaleLine> createHistoricalLines(Map<String, Integer> quantities, double subtotal, double discount) {
+        List<SaleLine> lines = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : quantities.entrySet()) {
+            String id = entry.getKey();
+            int quantity = entry.getValue();
+            String name;
+            String category;
+            double price;
+            if (productGateway.exists(id)) {
+                Product product = ((ProductService) productGateway).findById(id);
+                name = product.getName();
+                category = productGateway.getCategory(id);
+                price = product.getPrice();
+            } else {
+                Accessory accessory = accessoryService.findById(id);
+                name = accessory.getName();
+                category = accessory.getClass().getSimpleName().toUpperCase();
+                price = accessory.getPrice();
+            }
+            double lineSubtotal = price * quantity;
+            double lineDiscount = subtotal <= 0 ? 0.0 : discount * (lineSubtotal / subtotal);
+            lines.add(new SaleLine(id, name, category, price, quantity, lineDiscount));
+        }
+        return lines;
     }
 
     private double assignWarranties(Sale sale, Map<String, Boolean> selections) throws IOException {
