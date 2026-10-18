@@ -25,6 +25,8 @@ public class WarrantyService {
         this.warranties = repository.loadAll();
     }
 
+    public ProductService getProductService() { return productService; }
+
     public BasicWarranty assignBasicWarranty(Product product, Sale sale, LocalDate startDate) throws IOException {
         requireConsole(product);
         Warranty existing = findWarrantyByProduct(product.getId(), sale.getId());
@@ -44,9 +46,7 @@ public class WarrantyService {
     }
 
     public Warranty findWarrantyByProduct(String productId, String saleId) {
-        return warranties.stream()
-                .filter(w -> w.getProductId().equals(productId) && w.getSaleId().equals(saleId))
-                .findFirst().orElse(null);
+        return warranties.stream().filter(w -> w.getProductId().equals(productId) && w.getSaleId().equals(saleId)).findFirst().orElse(null);
     }
 
     public List<Warranty> listAllWarranties() { return new ArrayList<>(warranties); }
@@ -63,22 +63,18 @@ public class WarrantyService {
         return warranties.stream().filter(w -> !w.getEndDate().isBefore(today) && !w.getEndDate().isAfter(limit)).toList();
     }
 
-    /** Removes warranties for a returned product and returns the refundable extended-warranty cost. */
     public double cancelWarranties(String productId, String saleId) throws IOException {
         double refundable = warranties.stream()
                 .filter(w -> w.getProductId().equals(productId) && w.getSaleId().equals(saleId))
                 .filter(w -> w instanceof ExtendedWarranty)
-                .mapToDouble(Warranty::getAdditionalCost)
-                .sum();
+                .mapToDouble(Warranty::getAdditionalCost).sum();
         warranties.removeIf(w -> w.getProductId().equals(productId) && w.getSaleId().equals(saleId));
         save();
         return refundable;
     }
 
     private void requireConsole(Product product) {
-        if (!(product instanceof com.gamezone.model.Console)) {
-            throw new IllegalArgumentException("Only consoles can have warranties.");
-        }
+        if (!(product instanceof com.gamezone.model.Console)) throw new IllegalArgumentException("Only consoles can have warranties.");
     }
 
     private void save() throws IOException { repository.saveAll(warranties); }
