@@ -5,15 +5,14 @@ import com.gamezone.exception.ResourceNotFoundException;
 import com.gamezone.model.Accessory;
 import com.gamezone.model.Return;
 import com.gamezone.model.Sale;
+import com.gamezone.model.SaleLine;
 import com.gamezone.persistence.ReturnRepository;
 import com.gamezone.validation.ReturnValidator;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 /** Coordinates return rules, inventory restoration, refunds, and monthly reporting. */
@@ -48,11 +47,12 @@ public class ReturnService {
             if (alreadyReturned(saleId, itemId)) throw new BusinessRuleException("El producto " + itemId + " ya fue devuelto.");
         }
 
-        Map<String, Double> prices = resolvePrices(normalized);
-        double refund = Return.calculateRefundAmount(sale, normalized, prices);
+        double refund = calculateHistoricalRefund(sale, normalized);
         double warrantyRefund = 0.0;
         for (String itemId : normalized) {
-            if (productService.isConsole(itemId)) warrantyRefund += warrantyService.cancelWarranties(itemId, saleId);
+            if (productService.exists(itemId) && productService.isConsole(itemId)) {
+                warrantyRefund += warrantyService.cancelWarranties(itemId, saleId);
+            }
             if (productService.exists(itemId)) productService.restoreStock(itemId, 1);
             else accessoryService.restoreStock(itemId, 1);
         }
@@ -93,8 +93,22 @@ public class ReturnService {
         return returns.stream().filter(r -> r.getSaleId().equals(saleId)).anyMatch(r -> r.getItemIds().contains(itemId));
     }
 
-    private Map<String, Double> resolvePrices(List<String> ids) {
-        Map<String, Double> prices = new HashMap<>();
+    private double calculateHistoricalRefund(Sale sale, List<String> itemIds) {
+        if (sale instanceof com.gamezone.model.HistoricalSale historicalSale) {
+            double refund = 0.0;
+            for (String itemId : itemIds) {
+                SaleLine line = historicalSale.findLine(itemId);
+                if (line == null) throw new BusinessRuleException("No existe información histórica del producto " + itemId + " en la venta.");
+                refund += line.getLineTotal() / line.getQuantity();
+            }
+            return refund;
+        }
+
+        return Return.calculateRefundAmount(sale, itemIds, resolveLegacyPrices(itemIds));
+    }
+
+    private java.util.Map<String, Double> resolveLegacyPrices(List<String> ids) {
+        java.util.Map<String, Double> prices = new java.util.HashMap<>();
         for (String id : ids) {
             if (productService.exists(id)) prices.put(id, productService.getPrice(id));
             else {
