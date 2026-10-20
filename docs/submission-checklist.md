@@ -35,9 +35,11 @@ Use this checklist immediately before the presentation. Do not mark a verificati
 
 ## Team and Git workflow
 
-- [ ] Replace all identity placeholders in `TEAM.md` with real full names and student codes.
+- [x] Replace name placeholders in `TEAM.md` with the confirmed names Ángel Vargas and Diego Canales.
+- [ ] Add official student codes; they were not provided and must not be invented.
+- [ ] Confirm whether the instructor requires a third team member; only two names were confirmed.
 - [ ] Confirm the required personal commit and approved/merged PR counts from the assignment.
-- [ ] Ensure review is performed by someone other than the PR author.
+- [ ] Complete genuine cross-review by Diego Canales (requested on PR #12); the author must not submit a review as Diego or treat self-review as approval.
 - [ ] Merge feature PRs into `develop`, then publish the verified release from `develop` to `main` using the required PR.
 - [ ] Delete remote feature branches only after their changes are merged and the course rules allow it.
 
