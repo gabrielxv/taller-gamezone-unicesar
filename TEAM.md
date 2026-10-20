@@ -1,58 +1,35 @@
-# Team
+# Equipo y responsabilidades — GameZone Unicesar
 
-> Complete the two missing identity fields before the final Aula Web submission. The workshop requires the full name and student code of each of the three members.
+## Integrantes confirmados por el equipo
 
-| Member | Student code | Role | Module | Feature branch |
-|---|---|---|---|---|
-| Gabrielxv | **TO COMPLETE** | Technical Leader | Sales & Integration | `feature/integration` |
-| **TO COMPLETE** | **TO COMPLETE** | Developer 1 | Products | `feature/product-module` |
-| **TO COMPLETE** | **TO COMPLETE** | Developer 2 | People | `feature/person-module` |
-
-## Class distribution
-
-### Technical Leader
-- `Sale`
-- `SaleRepository`
-- `SaleService`
-- `ConsoleUI`
-- `Main`
-
-### Developer 1 — Products
-- `Product`
-- `VideoGame`
-- `Console`
-- `ProductRepository`
-- `ProductService`
-
-### Developer 2 — People
-- `Person`
-- `Client`
-- `Seller`
-- `PersonRepository`
-- `PersonService`
-
-## Committed activities
-
-### Technical Leader
-Repository configuration, Maven setup, sales implementation, UI integration, application startup, documentation, and module integration.
-
-### Developer 1
-Product hierarchy, abstract description behavior, video game and console specializations, file persistence, product service, stock management, and JavaDoc.
-
-### Developer 2
-Person hierarchy, role-specific behavior, client and seller specializations, file persistence, people service, seller preload, and JavaDoc.
-
-
-## Integration phase — Requirements 1–8
-
-The earlier table records the original workshop module distribution. For the later integration requirements, the team reports the following responsibility split:
-
-| Integration responsibility | Owner role | Main files / evidence |
+| Integrante | Responsabilidad | Evidencia principal |
 |---|---|---|
-| Accessory model and subtype validations | Developer 1 | `Accessory.java`, `Controller.java`, `Cable.java`, `Memory.java`; model tests |
-| Accessory repository/service and cross-module services | Developer 2 | `AccessoryRepository.java`, `AccessoryService.java`, promotion/return/warranty services and related tests |
-| Cross-module sale flow, application wiring, UI menus, architecture review and release coordination | Technical Leader | `SaleService.java`, `Main.java`, `ConsoleUI.java`, integration docs and PR review |
+| Ángel Vargas | Programador 2 y líder técnico: servicios de integración, coordinación de ventas/devoluciones/garantías, conexión de módulos, arquitectura, documentación y preparación de la entrega. | Rama `feature/leader-dev2-requirements-1-8`, PR #12 y commits asociados. |
+| Diego Canales | Programador 1: modelo de accesorios y validaciones de los tipos Controller, Cable y Memory. | Historial de contribuciones en PR #10 y archivos de modelo asociados. |
 
-The current integration branch was prepared with the user's stated responsibility split: Developer 2 and Technical Leader work were carried by the repository owner; the accessory model work remains attributable to the Developer 1 contribution history. This responsibility note does not replace the official names and student codes required above.
+**Códigos estudiantiles:** no fueron suministrados. Deben agregarse con los datos oficiales del curso; no se generan ni se adivinan.
 
-**Before submission:** replace every `TO COMPLETE` field with the real full name and student code supplied by each teammate. Do not infer student codes from GitHub accounts.
+## Reparto funcional para los requerimientos 1–8
+
+### Ángel Vargas — Programador 2 y líder técnico
+- Coordinar la integración entre productos, accesorios, promociones, ventas, devoluciones y garantías.
+- Mantener los servicios de aplicación, persistencia y el flujo de venta.
+- Revisar el diseño por capas, las responsabilidades GRASP/SOLID y las validaciones transversales.
+- Mantener README, matriz de trazabilidad, diagramas Mermaid, guía de presentación y checklist.
+- Coordinar el proceso de revisión y la publicación final.
+
+### Diego Canales — Programador 1
+- Mantener el modelo de accesorios y las reglas propias de Controller, Cable y Memory.
+- Revisar la compatibilidad con consolas y las validaciones de los atributos.
+- Revisar las pruebas del modelo y confirmar que la integración no contradiga sus reglas.
+
+## Nota sobre el equipo
+
+La información confirmada identifica dos integrantes. No se agrega una tercera persona ficticia para completar una tabla antigua. Si el docente exige tres integrantes, el equipo debe proporcionar el nombre y código oficiales del tercer miembro antes de la entrega.
+
+## Flujo de revisión
+
+- El autor del PR no se cuenta como revisor independiente de su propio cambio.
+- La revisión cruzada de PR #12 está solicitada a Diego Canales mediante la cuenta GitHub `DiegoACanalesM`.
+- El análisis técnico del autor y las pruebas automáticas son evidencia complementaria; no sustituyen una aprobación real del compañero.
+- La fusión debe realizarse después de que el revisor examine el diff, deje comentarios si corresponde y apruebe el PR.
