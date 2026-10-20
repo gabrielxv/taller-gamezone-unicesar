@@ -180,7 +180,7 @@ public class ConsoleUI {
             try {
                 switch (scanner.nextLine().trim()) {
                     case "1" -> promotionService.registerPercentageDiscount(ask("ID: "), ask("Nombre: "), askDate("Inicio (AAAA-MM-DD): "), askDate("Fin (AAAA-MM-DD): "), askDouble("Porcentaje: "));
-                    case "2" -> promotionService.registerCategoryDiscount(ask("ID: "), ask("Nombre: "), askDate("Inicio (AAAA-MM-DD): "), askDate("Fin (AAAA-MM-DD): "), askDouble("Porcentaje: "), ask("Categoría (VIDEOGAME/CONSOLE): "));
+                    case "2" -> promotionService.registerCategoryDiscount(ask("ID: "), ask("Nombre: "), askDate("Inicio (AAAA-MM-DD): "), askDate("Fin (AAAA-MM-DD): "), askDouble("Porcentaje: "), ask("Categoría (VIDEOGAME/CONSOLE/ACCESSORY): "));
                     case "3" -> promotionService.registerBulkPurchaseDiscount(ask("ID: "), ask("Nombre: "), askDate("Inicio (AAAA-MM-DD): "), askDate("Fin (AAAA-MM-DD): "), askInt("Cantidad mínima: "), askDouble("Porcentaje: "));
                     case "4" -> promotionService.listAllPromotions().forEach(p -> System.out.println(p.getId() + " | " + p.getName() + " | " + p.getType()));
                     case "5" -> promotionService.listActivePromotions().forEach(p -> System.out.println(p.getId() + " | " + p.getName() + " | " + p.getType()));
