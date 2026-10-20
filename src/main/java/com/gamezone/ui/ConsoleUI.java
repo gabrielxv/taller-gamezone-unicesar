@@ -195,7 +195,7 @@ public class ConsoleUI {
         requireModule(returnService, "ReturnService");
         boolean back = false;
         while (!back) {
-            System.out.println("\n--- Gestión de devoluciones ---\n1. Registrar devolución\n2. Listar todas\n3. Por cliente\n4. Por venta\n5. Balance mensual\n0. Volver");
+            System.out.println("\n--- Gestión de devoluciones ---\n1. Registrar devolución\n2. Listar todas\n3. Por cliente\n4. Por venta\n5. Balance mensual\n6. Recibo de devolución\n0. Volver");
             try {
                 switch (scanner.nextLine().trim()) {
                     case "1" -> registerReturn();
