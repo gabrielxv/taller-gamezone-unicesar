@@ -64,6 +64,28 @@ public class ReturnService {
         return result;
     }
 
+    public String generateReturnReceipt(String returnId) {
+        Return returnRecord = returns.stream()
+                .filter(value -> value.getId().equals(returnId))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("La devolución no existe: " + returnId));
+        Sale sale = saleService.getAllSales().stream()
+                .filter(value -> value.getId().equals(returnRecord.getSaleId()))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("La venta asociada no existe: " + returnRecord.getSaleId()));
+
+        Map<String, Double> historicalPrices = new HashMap<>();
+        for (String itemId : returnRecord.getItemIds()) {
+            SaleLine line = sale.findLine(itemId);
+            if (line != null) {
+                historicalPrices.put(itemId, line.getUnitPriceAtSale());
+            } else {
+                historicalPrices.putAll(resolveLegacyPrices(List.of(itemId)));
+            }
+        }
+        return returnRecord.generateReturnReceipt(historicalPrices);
+    }
+
     public List<Return> viewAllReturns() { return new ArrayList<>(returns); }
     public List<Return> viewReturnsByCustomer(String customerId) {
         return returns.stream().filter(r -> saleService.getAllSales().stream()
