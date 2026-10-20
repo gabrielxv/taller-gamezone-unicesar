@@ -33,22 +33,23 @@ public class WarrantyService {
     public BasicWarranty assignBasicWarranty(Product product, Sale sale, LocalDate startDate) throws IOException {
         validateAssignment(product, sale, startDate);
         requireConsole(product);
-        return warranties.stream()
-                .filter(w -> w instanceof BasicWarranty)
-                .filter(w -> w.getProductId().equals(product.getId()) && w.getSaleId().equals(sale.getId()))
-                .map(BasicWarranty.class::cast)
-                .findFirst()
-                .orElseGet(() -> {
-                    BasicWarranty warranty = new BasicWarranty(UUID.randomUUID().toString(), product.getId(), sale.getId(), product.getPrice(), startDate);
-                    warranties.add(warranty);
-                    try {
-                        save();
-                    } catch (IOException exception) {
-                        warranties.remove(warranty);
-                        throw new java.io.UncheckedIOException(exception);
-                    }
-                    return warranty;
-                });
+        for (Warranty existing : warranties) {
+            if (existing instanceof BasicWarranty
+                    && existing.getProductId().equals(product.getId())
+                    && existing.getSaleId().equals(sale.getId())) {
+                return (BasicWarranty) existing;
+            }
+        }
+        BasicWarranty warranty = new BasicWarranty(
+                UUID.randomUUID().toString(), product.getId(), sale.getId(), product.getPrice(), startDate);
+        warranties.add(warranty);
+        try {
+            save();
+        } catch (IOException exception) {
+            warranties.remove(warranty);
+            throw exception;
+        }
+        return warranty;
     }
 
     /** Creates a single extended warranty for a console within a given sale. */
