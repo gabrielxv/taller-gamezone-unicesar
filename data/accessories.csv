@@ -1,0 +1,4 @@
+type,id,name,price,stock,compatibleConsoleIds,specificValue1,specificValue2
+CONTROLLER,A001,Wireless Controller,59.99,10,C001|C002,WIRELESS,
+CABLE,A002,HDMI Cable,19.99,20,C001|C002,2.0,HDMI
+MEMORY,A003,MicroSD Card,39.99,15,C001,128,microSD

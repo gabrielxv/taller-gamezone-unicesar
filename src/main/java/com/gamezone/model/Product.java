@@ -19,7 +19,7 @@ public abstract class Product implements Serializable {
     public String getName() { return name; }
     public void setName(String name) { if (name == null || name.isBlank()) throw new IllegalArgumentException("Product name is required."); this.name = name.trim(); }
     public double getPrice() { return price; }
-    public void setPrice(double price) { if (price < 0) throw new IllegalArgumentException("Price cannot be negative."); this.price = price; }
+    public void setPrice(double price) { if (!Double.isFinite(price) || price < 0) throw new IllegalArgumentException("Price must be finite and non-negative."); this.price = price; }
     public int getStock() { return stock; }
     public void setStock(int stock) { if (stock < 0) throw new IllegalArgumentException("Stock cannot be negative."); this.stock = stock; }
     /** Returns a human-readable description specific to the concrete product type. */
