@@ -64,7 +64,12 @@ public class WarrantyService {
         if (existing != null) return existing;
         ExtendedWarranty warranty = new ExtendedWarranty(UUID.randomUUID().toString(), product.getId(), sale.getId(), product.getPrice(), startDate);
         warranties.add(warranty);
-        save();
+        try {
+            save();
+        } catch (IOException exception) {
+            warranties.remove(warranty);
+            throw exception;
+        }
         return warranty;
     }
 
@@ -87,10 +92,20 @@ public class WarrantyService {
     }
 
     public double cancelWarranties(String productId, String saleId) throws IOException {
-        double refundable = warranties.stream().filter(w -> w.getProductId().equals(productId) && w.getSaleId().equals(saleId))
-                .filter(w -> w instanceof ExtendedWarranty).mapToDouble(Warranty::getAdditionalCost).sum();
-        warranties.removeIf(w -> w.getProductId().equals(productId) && w.getSaleId().equals(saleId));
-        save();
+        List<Warranty> removed = warranties.stream()
+                .filter(w -> w.getProductId().equals(productId) && w.getSaleId().equals(saleId))
+                .toList();
+        double refundable = removed.stream()
+                .filter(w -> w instanceof ExtendedWarranty)
+                .mapToDouble(Warranty::getAdditionalCost).sum();
+        if (removed.isEmpty()) return 0.0;
+        warranties.removeAll(removed);
+        try {
+            save();
+        } catch (IOException exception) {
+            warranties.addAll(removed);
+            throw exception;
+        }
         return refundable;
     }
 
