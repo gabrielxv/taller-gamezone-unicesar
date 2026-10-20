@@ -45,15 +45,16 @@ public class Return implements Serializable {
 
     public String generateReturnReceipt(Map<String, Double> prices) {
         double subtotal = itemIds.stream().mapToDouble(id -> prices.getOrDefault(id, 0.0)).sum();
-        double factor = subtotal <= 0 ? 1.0 : refundAmount / subtotal;
-        StringBuilder receipt = new StringBuilder("Recibo de devolución\n");
+        double itemRefund = Math.max(0.0, refundAmount - warrantyRefund);
+        double factor = subtotal <= 0 ? 1.0 : Math.max(0.0, Math.min(1.0, itemRefund / subtotal));
+        StringBuilder receipt = new StringBuilder("Recibo de devolución\\n");
         for (String itemId : itemIds) {
             double price = prices.getOrDefault(itemId, 0.0);
             receipt.append(itemId).append(" | precio=").append(price)
                     .append(" | descuento proporcional=").append(price - price * factor)
-                    .append(" | reembolso=").append(price * factor).append('\n');
+                    .append(" | reembolso=").append(price * factor).append('\\n');
         }
-        receipt.append("Reembolso de garantía: ").append(warrantyRefund).append('\n');
+        receipt.append("Reembolso de garantía: ").append(warrantyRefund).append('\\n');
         receipt.append("Total reembolsado: ").append(refundAmount);
         return receipt.toString();
     }
