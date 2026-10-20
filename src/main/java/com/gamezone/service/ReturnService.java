@@ -16,6 +16,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /** Coordinates return rules, inventory restoration, refunds, and monthly reporting. */
 public class ReturnService {
@@ -43,24 +46,41 @@ public class ReturnService {
         ReturnValidator.validateItems(itemIds);
         ReturnValidator.validateReason(reason);
 
-        List<String> normalized = itemIds.stream().map(String::trim).filter(s -> !s.isBlank()).toList();
-        for (String itemId : normalized) {
-            if (!sale.getProductIds().contains(itemId)) throw new BusinessRuleException("El producto " + itemId + " no pertenece a la venta indicada.");
-            if (alreadyReturned(saleId, itemId)) throw new BusinessRuleException("El producto " + itemId + " ya fue devuelto.");
+        List<String> normalized = itemIds.stream().map(String::trim).toList();
+        Map<String, Integer> requestedQuantities = countItems(normalized);
+        for (Map.Entry<String, Integer> entry : requestedQuantities.entrySet()) {
+            String itemId = entry.getKey();
+            int soldQuantity = quantitySold(sale, itemId);
+            if (soldQuantity == 0) {
+                throw new BusinessRuleException("El producto " + itemId + " no pertenece a la venta indicada.");
+            }
+            int returnedBefore = quantityAlreadyReturned(saleId, itemId);
+            if (returnedBefore + entry.getValue() > soldQuantity) {
+                throw new BusinessRuleException("La cantidad solicitada para " + itemId + " supera la cantidad vendida disponible para devolución.");
+            }
         }
 
         double refund = calculateHistoricalRefund(sale, normalized);
         double warrantyRefund = 0.0;
-        for (String itemId : normalized) {
-            if (productService.exists(itemId) && productService.isConsole(itemId)) warrantyRefund += warrantyService.cancelWarranties(itemId, saleId);
-            if (productService.exists(itemId)) productService.restoreStock(itemId, 1);
-            else accessoryService.restoreStock(itemId, 1);
+        for (String itemId : new LinkedHashSet<>(normalized)) {
+            if (productService.exists(itemId) && productService.isConsole(itemId)) {
+                warrantyRefund += warrantyService.cancelWarranties(itemId, saleId);
+            }
+        }
+        for (Map.Entry<String, Integer> entry : requestedQuantities.entrySet()) {
+            if (productService.exists(entry.getKey())) productService.restoreStock(entry.getKey(), entry.getValue());
+            else accessoryService.restoreStock(entry.getKey(), entry.getValue());
         }
 
         Return result = new Return(UUID.randomUUID().toString(), saleId, LocalDate.now(), normalized,
                 reason.trim(), refund + warrantyRefund, warrantyRefund);
         returns.add(result);
-        repository.saveAll(returns);
+        try {
+            repository.saveAll(returns);
+        } catch (IOException exception) {
+            returns.remove(result);
+            throw exception;
+        }
         return result;
     }
 
@@ -100,8 +120,23 @@ public class ReturnService {
     }
     public double generateMonthlyBalance(int month, int year) { return calculateMonthlySales(month, year) - calculateMonthlyReturns(month, year); }
 
-    private boolean alreadyReturned(String saleId, String itemId) {
-        return returns.stream().filter(r -> r.getSaleId().equals(saleId)).anyMatch(r -> r.getItemIds().contains(itemId));
+    private Map<String, Integer> countItems(List<String> itemIds) {
+        Map<String, Integer> quantities = new LinkedHashMap<>();
+        for (String itemId : itemIds) quantities.merge(itemId, 1, Integer::sum);
+        return quantities;
+    }
+
+    private int quantitySold(Sale sale, String itemId) {
+        SaleLine line = sale.findLine(itemId);
+        if (line != null) return line.getQuantity();
+        return (int) sale.getProductIds().stream().filter(itemId::equals).count();
+    }
+
+    private int quantityAlreadyReturned(String saleId, String itemId) {
+        return returns.stream()
+                .filter(value -> value.getSaleId().equals(saleId))
+                .mapToInt(value -> (int) value.getItemIds().stream().filter(itemId::equals).count())
+                .sum();
     }
 
     private double calculateHistoricalRefund(Sale sale, List<String> itemIds) {
