@@ -203,6 +203,7 @@ public class ConsoleUI {
                     case "3" -> returnService.viewReturnsByCustomer(ask("ID del cliente: ")).forEach(r -> System.out.println(r.getId() + " | " + r.getRefundAmount()));
                     case "4" -> returnService.viewReturnsBySale(ask("ID de la venta: ")).forEach(r -> System.out.println(r.getId() + " | " + r.getRefundAmount()));
                     case "5" -> showMonthlyBalance();
+                    case "6" -> System.out.println(returnService.generateReturnReceipt(ask("ID de devolución: ")));
                     case "0" -> back = true;
                     default -> System.out.println("Opción inválida.");
                 }
