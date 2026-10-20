@@ -26,22 +26,45 @@ public class WarrantyService {
         this.warranties = repository.loadAll();
     }
 
+    /** Exposes product lookup to the coordinated sale workflow without exposing the repository. */
     public ProductService getProductService() { return productService; }
 
+    /** Creates a single basic warranty for a console within a given sale. */
     public BasicWarranty assignBasicWarranty(Product product, Sale sale, LocalDate startDate) throws IOException {
-        validateProduct(product, startDate);
+        validateAssignment(product, sale, startDate);
         requireConsole(product);
-        Warranty existing = findWarrantyByProduct(product.getId(), sale.getId());
-        if (existing != null) return (BasicWarranty) existing;
-        BasicWarranty warranty = new BasicWarranty(UUID.randomUUID().toString(), product.getId(), sale.getId(), product.getPrice(), startDate);
-        warranties.add(warranty); save(); return warranty;
+        return warranties.stream()
+                .filter(w -> w instanceof BasicWarranty)
+                .filter(w -> w.getProductId().equals(product.getId()) && w.getSaleId().equals(sale.getId()))
+                .map(BasicWarranty.class::cast)
+                .findFirst()
+                .orElseGet(() -> {
+                    BasicWarranty warranty = new BasicWarranty(UUID.randomUUID().toString(), product.getId(), sale.getId(), product.getPrice(), startDate);
+                    warranties.add(warranty);
+                    try {
+                        save();
+                    } catch (IOException exception) {
+                        warranties.remove(warranty);
+                        throw new java.io.UncheckedIOException(exception);
+                    }
+                    return warranty;
+                });
     }
 
+    /** Creates a single extended warranty for a console within a given sale. */
     public ExtendedWarranty assignExtendedWarranty(Product product, Sale sale, LocalDate startDate) throws IOException {
-        validateProduct(product, startDate);
+        validateAssignment(product, sale, startDate);
         requireConsole(product);
+        ExtendedWarranty existing = warranties.stream()
+                .filter(w -> w instanceof ExtendedWarranty)
+                .filter(w -> w.getProductId().equals(product.getId()) && w.getSaleId().equals(sale.getId()))
+                .map(ExtendedWarranty.class::cast)
+                .findFirst().orElse(null);
+        if (existing != null) return existing;
         ExtendedWarranty warranty = new ExtendedWarranty(UUID.randomUUID().toString(), product.getId(), sale.getId(), product.getPrice(), startDate);
-        warranties.add(warranty); save(); return warranty;
+        warranties.add(warranty);
+        save();
+        return warranty;
     }
 
     public Warranty findWarrantyByProduct(String productId, String saleId) {
@@ -68,6 +91,11 @@ public class WarrantyService {
         warranties.removeIf(w -> w.getProductId().equals(productId) && w.getSaleId().equals(saleId));
         save();
         return refundable;
+    }
+
+    private void validateAssignment(Product product, Sale sale, LocalDate startDate) {
+        if (sale == null) throw new IllegalArgumentException("Sale is required.");
+        validateProduct(product, startDate);
     }
 
     private void validateProduct(Product product, LocalDate startDate) {
