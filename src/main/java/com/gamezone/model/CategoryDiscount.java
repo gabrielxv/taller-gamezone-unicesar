@@ -2,6 +2,7 @@ package com.gamezone.model;
 
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.Locale;
 
 /** Applies a percentage discount only to items in a target category. */
 public class CategoryDiscount extends Promotion {
@@ -25,10 +26,16 @@ public class CategoryDiscount extends Promotion {
 
     public String getCategory() { return category; }
     public void setCategory(String category) {
-        if (category == null || (!"VIDEOGAME".equalsIgnoreCase(category) && !"CONSOLE".equalsIgnoreCase(category))) {
-            throw new IllegalArgumentException("Category must be VIDEOGAME or CONSOLE.");
+        if (category == null) {
+            throw new IllegalArgumentException("Category must be VIDEOGAME, CONSOLE, or ACCESSORY.");
         }
-        this.category = category.trim().toUpperCase();
+        String normalizedCategory = category.trim().toUpperCase(Locale.ROOT);
+        if (!"VIDEOGAME".equals(normalizedCategory)
+                && !"CONSOLE".equals(normalizedCategory)
+                && !"ACCESSORY".equals(normalizedCategory)) {
+            throw new IllegalArgumentException("Category must be VIDEOGAME, CONSOLE, or ACCESSORY.");
+        }
+        this.category = normalizedCategory;
     }
 
     @Override
