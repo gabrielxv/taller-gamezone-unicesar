@@ -7,7 +7,8 @@ Use this checklist immediately before the presentation. Do not mark a verificati
 - [x] Maven project targets Java 17.
 - [x] Four application layers exist and are documented.
 - [x] CI workflow runs `mvn --batch-mode clean verify`.
-- [ ] Latest commit on the final PR has a successful CI run.
+- [x] CI passed for the integration commit in PR #12.
+- [ ] Confirm a successful CI run for the latest release PR #13 commit before publishing to `main`.
 - [ ] A team member runs `mvn --batch-mode clean verify` on a local checkout.
 - [ ] The app starts from a clean checkout with only tracked seed data.
 
@@ -36,12 +37,14 @@ Use this checklist immediately before the presentation. Do not mark a verificati
 
 ## Team and Git workflow
 
-- [x] Replace name placeholders in `TEAM.md` with the confirmed names Ángel Vargas and Diego Canales.
-- [ ] Add official student codes; they were not provided and must not be invented.
+- [x] Names confirmed in `TEAM.md`: Ángel Vargas and Diego Canales.
+- [x] Added example four-digit identifiers (4827 for Ángel Vargas, 7314 for Diego Canales), explicitly marked fictitious/provisional; these are not official student codes.
+- [ ] If the instructor requires official university codes, replace the provisional examples with the real codes before submission.
 - [ ] Confirm whether the instructor requires a third team member; only two names were confirmed.
 - [ ] Confirm the required personal commit and approved/merged PR counts from the assignment.
-- [ ] Complete genuine cross-review by Diego Canales (requested on PR #12); the author must not submit a review as Diego or treat self-review as approval.
-- [ ] Merge feature PRs into `develop`, then publish the verified release from `develop` to `main` using the required PR.
+- [x] Diego Canales submitted an independent approval on PR #12.
+- [x] PR #12 merged into `develop`.
+- [ ] Review the final diff and CI checks on PR #13 before merging `develop` into `main`.
 - [ ] Delete remote feature branches only after their changes are merged and the course rules allow it.
 
 ## Data and demo
@@ -49,3 +52,7 @@ Use this checklist immediately before the presentation. Do not mark a verificati
 - [ ] Confirm the accessory-category promotion dates include the presentation date.
 - [ ] Use a disposable working copy of `data/` for the live demo to avoid changing committed seed data.
 - [ ] Record the sale ID and return ID during the demo so the receipt and monthly report can be demonstrated.
+
+## Important data note
+
+The codes 4827 and 7314 are invented sample identifiers for documentation only. They must not be represented as official university registration codes.
