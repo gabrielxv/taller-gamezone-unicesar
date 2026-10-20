@@ -15,7 +15,8 @@ Use this checklist immediately before the presentation. Do not mark a verificati
 
 - [x] R1: accessory model, persistence/service, compatibility query, menu, and sales integration are present.
 - [x] R2: percentage, category, and bulk promotion strategies and persistence are present.
-- [x] R3: returns, stock restoration, receipts, and monthly reporting are present.
+- [x] R3: returns, stock restoration, receipts, monthly reporting, and cumulative partial-quantity checks are present.
+- [x] Added a service test for two separate unit returns and rejection of an over-return.
 - [x] R4: basic/extended warranties, persistence, lookup, and cancellation are present.
 - [x] R5: the sale workflow integrates products, accessories, promotions, and warranties.
 - [x] R6: validators and a domain exception hierarchy are present.
