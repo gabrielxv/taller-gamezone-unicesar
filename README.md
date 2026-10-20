@@ -82,5 +82,6 @@ JUnit 5 tests cover accessory validations/persistence, category discounts, produ
 - [GRASP responsibility audit](docs/grasp-refactor-log.md)
 - [SOLID audit](docs/solid-analysis.md)
 - [Submission checklist](docs/submission-checklist.md)
+- [Internal technical review and release gates](docs/internal-review-pr12.md)
 - [Team roles and identity fields](TEAM.md)
 - [AI usage logs](docs/ai-usage/)
