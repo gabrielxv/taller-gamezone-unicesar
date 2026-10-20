@@ -16,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.LinkedHashSet;
 
 /** Coordinates the complete sale workflow across products, promotions, warranties, and accessories. */
 public class SaleService {
@@ -135,14 +136,22 @@ public class SaleService {
         return lines;
     }
 
+    /**
+     * Assigns one basic warranty per console identifier and optionally adds its extended coverage.
+     * Repeated sale-line identifiers are deduplicated because warranty records are keyed by product and sale.
+     */
     private double assignWarranties(Sale sale, Map<String, Boolean> selections) throws IOException {
         if (warrantyService == null) return 0.0;
-        double cost = 0.0; ProductService productService = warrantyService.getProductService();
-        for (String id : sale.getProductIds()) {
+        double cost = 0.0;
+        ProductService productService = warrantyService.getProductService();
+        for (String rawId : new LinkedHashSet<>(sale.getProductIds())) {
+            String id = rawId.trim();
             if (!productGateway.exists(id) || !productGateway.isConsole(id)) continue;
             Product product = productService.findById(id);
             warrantyService.assignBasicWarranty(product, sale, LocalDate.now());
-            if (Boolean.TRUE.equals(selections.get(id))) cost += warrantyService.assignExtendedWarranty(product, sale, LocalDate.now()).getAdditionalCost();
+            if (Boolean.TRUE.equals(selections.get(id))) {
+                cost += warrantyService.assignExtendedWarranty(product, sale, LocalDate.now()).getAdditionalCost();
+            }
         }
         return cost;
     }
