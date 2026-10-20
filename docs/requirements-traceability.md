@@ -18,7 +18,7 @@ This matrix maps the integrated implementation to the requirement areas used by 
 1. A sale cannot be accepted if a customer or seller is missing, its item list is empty, an item does not exist, or stock is insufficient.
 2. A sale line records the unit price and allocated discount used at sale time; a later catalogue price change must not rewrite the historical receipt/refund basis.
 3. A category promotion can target only supported categories, including accessories.
-4. A return must refer to an item in the original sale and must not return the same item twice.
+4. A return must refer to an item in the original sale; repeated IDs represent multiple units, and cumulative returned quantity must never exceed the sold quantity.
 5. A returned accessory restores accessory stock; a returned product restores product stock.
 6. Returning a console cancels its warranties; only the extended-warranty amount is refundable.
 7. Monthly net balance equals final sales total minus recorded return refunds for the selected month/year.
