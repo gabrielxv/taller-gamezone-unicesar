@@ -1,71 +1,86 @@
 # GameZone Unicesar
 
-Console-based Java/Maven application for managing products, accessories, people, inventory, and sales for the GameZone Unicesar workshop.
+**Integrated Java 17/Maven console application** for managing products, accessories, people, promotions, sales, warranties, returns, and inventory.
 
 ## Requirements
-- Java 17 or later
+
+- Java 17+
 - Maven 3.9+
+- Internet access on the first Maven build if dependencies are not cached
 
-## Build
+## Build, test, and run
 
-```bash
-mvn clean package
-```
-
-## Run
+From the repository root:
 
 ```bash
+mvn --batch-mode clean verify
 mvn exec:java -Dexec.mainClass="com.gamezone.Main"
 ```
 
-If the Maven Exec plugin is unavailable in a local setup, run the compiled `com.gamezone.Main` class from the IDE.
+If the Exec Maven plugin is unavailable in an IDE, run `com.gamezone.Main` from the IDE after compiling the project. The Maven CI workflow runs `mvn --batch-mode clean verify` on pushes to feature/develop branches and pull requests targeting `develop`.
 
 ## Architecture
 
-The project uses four layers:
+The system uses four layers and keeps business rules out of the console UI:
 
-- `model`: domain entities and inheritance hierarchies.
-- `persistence`: file-based repositories.
-- `service`: business rules and module integration.
-- `ui`: console interaction.
+- **UI:** `ConsoleUI` — input, output, and menu navigation.
+- **Service:** `ProductService`, `PersonService`, `AccessoryService`, `PromotionService`, `WarrantyService`, `SaleService`, and `ReturnService`.
+- **Persistence:** repositories for products, people, sales, accessories, promotions, warranties, and returns.
+- **Model:** products, people, sales/lines, accessories, promotion strategies, warranty types, and return records.
 
-Dependencies follow `ui -> service -> persistence -> model`, with services also depending on model classes.
+The intended dependency direction is `ui → service → persistence`; services and repositories use model objects. The sale integration uses `ProductGateway` and `PeopleGateway` to reduce coupling to the product and people modules.
 
-## Functional operations
+See [the layer diagram](docs/layers-diagram.md) and [the integrated class diagram](docs/integrated-class-diagram.md).
 
-1. Register video game
-2. Register console
-3. List products
-4. Update product stock
-5. Register controller
-6. Register cable
-7. Register memory
-8. List all accessories
-9. List accessories by type
-10. List accessories compatible with a console
-11. Register client
-12. List clients
-13. List sellers
-14. Register sale with products and/or accessories
-15. View all sales
-16. View customer purchase history
-17. View seller sales history
+## Console menu
 
-## Accessory module
+The main menu opens seven modules:
 
-The accessory module contains the abstract `Accessory` class and the concrete `Controller`, `Cable`, and `Memory` classes. Accessories inherit the common sellable fields from `Product` and keep a list of compatible console identifiers.
+1. **Products:** register video games and consoles, list products, update stock.
+2. **Accessories:** register controllers, cables, and memories; list by type; query compatibility with a console.
+3. **People:** register/list customers and list sellers.
+4. **Sales:** register sales, list receipts, and view sales by customer or seller.
+5. **Promotions:** register percentage, category, and bulk-purchase discounts; list all/active promotions.
+6. **Returns:** register partial returns, list returns, query by customer/sale, generate return receipts, and view monthly sales/returns/net balance.
+7. **Warranties:** list all/active warranties and those expiring soon.
 
-Accessory persistence uses `data/accessories.csv` with a type discriminator. The service provides registration, filtering by type, compatibility queries, identifier lookup, and stock updates.
+## Integrated business rules
 
-Sales accept any combination of existing products and accessories. Product inventory is updated through `ProductService`, while accessory inventory is updated through `AccessoryService`.
+- A sale can contain video games, consoles, and accessories.
+- Sale registration validates customer, seller, item existence, and available stock before the inventory update.
+- The promotion service selects the highest applicable active discount; category promotions support `VIDEOGAME`, `CONSOLE`, and `ACCESSORY`.
+- Consoles receive a basic six-month warranty. An extended twelve-month warranty costs 10% of the console's price when selected.
+- Returns validate the 30-day window and sale membership, apply historical sale-line prices/discount allocation, restore stock, cancel console warranties, and include refundable extended-warranty cost.
+- Monthly reporting shows total final sales, returns, and net balance.
 
-## Data
+## Data files
 
-Data is stored under `data/` and loaded automatically at startup. The accessory module includes three preloaded records in `data/accessories.csv`, one controller, one cable, and one memory.
+Files live under `data/` and load automatically at startup:
 
-## Documentation
+- `products.dat`, `people.dat`, `sales.dat`: Java-serialized application data created at runtime.
+- `accessories.csv`: initial controller/cable/memory catalogue.
+- `promotions.csv`: initial percentage, video-game category, bulk, and accessory-category promotions.
+- `warranties.csv`, `returns.csv`: persisted warranty and return records created as the application is used.
+- `seed-sellers.txt`: seller seed reference; `Main` ensures three sellers exist.
 
-- `docs/accessory-analysis.md`: analysis of the accessory design and integration.
-- `docs/accessory-class-diagram.md`: Mermaid diagram for the accessory module and its integration.
-- `docs/class-diagram.md`: updated system class diagram.
-- `docs/layers-diagram.md`: updated four-layer architecture diagram.
+**Demo note:** the accessory-category promotion in `data/promotions.csv` is dated 19–25 October 2026. Update the dates if the presentation takes place outside that window.
+
+## Test coverage
+
+JUnit 5 tests cover accessory validations/persistence, category discounts, product price validation, sale-line behavior, return validation/receipts, and warranty assignment/persistence. The current pull request must have a successful CI run for its latest commit before it is treated as release-ready.
+
+## Documentation index
+
+- [Requirement traceability 1–8](docs/requirements-traceability.md)
+- [Integration analysis and adjustments A1–A7](docs/integration-analysis.md)
+- [Integrated class diagram](docs/integrated-class-diagram.md)
+- [Layer architecture](docs/layers-diagram.md)
+- [Sale/return sequence diagrams](docs/sequence-diagrams.md)
+- [Presentation and demo guide](docs/presentation-guide.md)
+- [Accessory analysis](docs/accessory-analysis.md)
+- [Accessory class diagram](docs/accessory-class-diagram.md)
+- [GRASP responsibility audit](docs/grasp-refactor-log.md)
+- [SOLID audit](docs/solid-analysis.md)
+- [Submission checklist](docs/submission-checklist.md)
+- [Team roles and identity fields](TEAM.md)
+- [AI usage logs](docs/ai-usage/)
