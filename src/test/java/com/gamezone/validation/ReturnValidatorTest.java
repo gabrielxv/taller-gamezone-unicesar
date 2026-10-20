@@ -26,8 +26,8 @@ class ReturnValidatorTest {
     }
 
     @Test
-    void rejectsDuplicateIdsEvenWhenWhitespaceDiffers() {
-        assertThrows(InvalidDataException.class, () -> ReturnValidator.validateItems(List.of("P1", " P1 ")));
+    void acceptsRepeatedIdsBecauseEachOccurrenceRepresentsOneUnit() {
+        assertDoesNotThrow(() -> ReturnValidator.validateItems(List.of("P1", " P1 ")));
     }
 
     @Test
