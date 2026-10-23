@@ -5,10 +5,13 @@ on:
     branches:
       - develop
       - 'feature/**'
+      - 'fix/**'
       - 'trabajo/**'
   pull_request:
     branches:
       - develop
+      - main
+  workflow_dispatch:
 
 jobs:
   build:
