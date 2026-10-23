@@ -2,12 +2,13 @@
 
 ## 1. Before presenting
 
-1. Check out the final release branch and confirm the latest CI run is green.
-2. Run `mvn --batch-mode clean verify`.
-3. Start the application with `mvn exec:java -Dexec.mainClass="com.gamezone.Main"`.
-4. Use a disposable copy of the repository for the live demo so that generated `*.dat`, return, and warranty records do not alter the reviewed source branch.
-5. Confirm the current date is inside the accessory-category promotion window in `data/promotions.csv` (19–25 October 2026); otherwise adjust the seed dates in the demo copy and explain the change.
-6. Record the generated sale ID and return ID during the demonstration.
+1. Check out the final `main` branch and pull the latest commit.
+2. Confirm the latest GitHub Actions run for that exact commit is successful.
+3. Record the Java and Maven versions, then run `mvn --batch-mode clean verify`.
+4. Start the app with `mvn exec:java -Dexec.mainClass="com.gamezone.Main"`.
+5. Use a disposable copy of the repository for the live demo so generated `*.dat`, return, and warranty records do not alter the reviewed source branch.
+6. Confirm the current date is inside the selected promotion's active window in `data/promotions.csv`. The accessory-category promotion is active from **19 October to 31 December 2026**; the general, videogame, and bulk seed promotions end on 31 December 2026. If dates must be adjusted, change only the disposable demo copy and explain the adjustment.
+7. Record the generated sale ID and return ID during the demonstration.
 
 ## 2. Suggested end-to-end scenario
 
@@ -51,7 +52,7 @@ Expected invariant: the system validates all stock before it starts decreasing i
 5. Explain the prorated discount refund, restored inventory, and cancellation/refund of the extended warranty.
 6. Generate the return receipt using the recorded return ID.
 
-Expected invariant: an item must belong to the selected sale and cannot be returned twice.
+Expected invariant: an item must belong to the selected sale and cumulative returned quantity cannot exceed quantity sold.
 
 ### Step E — Monthly balance
 
@@ -72,8 +73,8 @@ Expected invariant: an item must belong to the selected sale and cannot be retur
 
 ## 4. Evidence to capture
 
-- CI run for the latest commit.
-- `mvn clean verify` output from a team member's machine.
+- CI run for the exact final `main` commit.
+- Output of `mvn --batch-mode clean verify` from a team member's machine.
 - Mixed sale receipt and sale ID.
 - Warranty listing before return.
 - Return receipt, restored stock, and cancelled warranty evidence.
@@ -82,7 +83,7 @@ Expected invariant: an item must belong to the selected sale and cannot be retur
 
 ## 5. Do not claim
 
-- Do not claim a new build passed until CI/local output confirms it.
+- Do not claim a build passed until CI/local output confirms it for the exact commit.
 - Do not claim filesystem operations are a single atomic transaction.
 - Do not claim all original assignment clauses have been verified until the team checks the original PDFs.
 - Do not invent teammate names, student codes, commits, or reviews.

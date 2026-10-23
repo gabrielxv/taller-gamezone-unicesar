@@ -4,20 +4,26 @@
 
 ## Requirements
 
-- Java 17+
-- Maven 3.9+
+- Java 17 or newer
+- Maven 3.9 or newer
 - Internet access on the first Maven build if dependencies are not cached
 
 ## Build, test, and run
 
-From the repository root:
+Run these commands from the repository root on the final `main` branch:
 
 ```bash
+git switch main
+git pull origin main
+java -version
+mvn --version
 mvn --batch-mode clean verify
 mvn exec:java -Dexec.mainClass="com.gamezone.Main"
 ```
 
-If the Exec Maven plugin is unavailable in an IDE, run `com.gamezone.Main` from the IDE after compiling the project. The Maven CI workflow runs `mvn --batch-mode clean verify` on pushes to develop/feature/fix branches, and on pull requests targeting either `develop` or `main`.
+The release is not considered verified until the latest GitHub Actions run for the exact `main` commit succeeds and a team member has run the commands above locally. If the Exec Maven plugin is unavailable in an IDE, compile the project with Maven and run `com.gamezone.Main` from the IDE.
+
+The Maven CI workflow runs `mvn --batch-mode clean verify` on pushes to `main`, `develop`, and work branches, on pull requests targeting `develop` or `main`, and on manual dispatch.
 
 ## Architecture
 
@@ -63,11 +69,13 @@ Files live under `data/` and load automatically at startup:
 - `warranties.csv`, `returns.csv`: persisted warranty and return records created as the application is used.
 - `seed-sellers.txt`: seller seed reference; `Main` ensures three sellers exist.
 
-**Demo note:** the accessory-category promotion in `data/promotions.csv` is active from 19 October through 31 December 2026. Change the dates if the assignment requires a different promotion window.
+**Demo note:** the accessory-category promotion in `data/promotions.csv` is active from 19 October through 31 December 2026. Use a disposable working copy of `data/` for the live demonstration so that runtime records do not alter the reviewed source branch.
 
-## Test coverage
+## Test coverage and release gate
 
-JUnit 5 tests cover accessory validations/persistence, category discounts, product price validation, sale-line behavior, return validation/receipts, and warranty assignment/persistence. Do not treat the project as release-ready until CI passes for the exact release commit and the main sale/return workflow has been exercised from a clean data directory.
+JUnit 5 tests cover accessory validations/persistence, category discounts, product price validation, sale-line behavior, partial-return quantity rules/receipts, and warranty assignment/persistence. CI passing confirms that compilation and automated tests succeeded for the commit tested; it does not replace a manual end-to-end demonstration.
+
+Before submission, complete [the submission checklist](docs/submission-checklist.md) and the [presentation/acceptance guide](docs/presentation-guide.md). The filesystem repositories do not provide a single ACID transaction across products, accessories, sales, warranties, and returns; do not claim global atomic transactions.
 
 ## Documentation index
 
