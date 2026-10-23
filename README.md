@@ -17,7 +17,7 @@ mvn --batch-mode clean verify
 mvn exec:java -Dexec.mainClass="com.gamezone.Main"
 ```
 
-If the Exec Maven plugin is unavailable in an IDE, run `com.gamezone.Main` from the IDE after compiling the project. The Maven CI workflow runs `mvn --batch-mode clean verify` on pushes to feature/develop branches and pull requests targeting `develop`.
+If the Exec Maven plugin is unavailable in an IDE, run `com.gamezone.Main` from the IDE after compiling the project. The Maven CI workflow runs `mvn --batch-mode clean verify` on pushes to develop/feature/fix branches, and on pull requests targeting either `develop` or `main`.
 
 ## Architecture
 
@@ -63,11 +63,11 @@ Files live under `data/` and load automatically at startup:
 - `warranties.csv`, `returns.csv`: persisted warranty and return records created as the application is used.
 - `seed-sellers.txt`: seller seed reference; `Main` ensures three sellers exist.
 
-**Demo note:** the accessory-category promotion in `data/promotions.csv` is dated 19–25 October 2026. Update the dates if the presentation takes place outside that window.
+**Demo note:** the accessory-category promotion in `data/promotions.csv` is active from 19 October through 31 December 2026. Change the dates if the assignment requires a different promotion window.
 
 ## Test coverage
 
-JUnit 5 tests cover accessory validations/persistence, category discounts, product price validation, sale-line behavior, return validation/receipts, and warranty assignment/persistence. The current pull request must have a successful CI run for its latest commit before it is treated as release-ready.
+JUnit 5 tests cover accessory validations/persistence, category discounts, product price validation, sale-line behavior, return validation/receipts, and warranty assignment/persistence. Do not treat the project as release-ready until CI passes for the exact release commit and the main sale/return workflow has been exercised from a clean data directory.
 
 ## Documentation index
 

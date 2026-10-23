@@ -6,7 +6,7 @@ Use this checklist immediately before the presentation. Do not mark a verificati
 
 - [x] Maven project targets Java 17.
 - [x] Four application layers exist and are documented.
-- [x] CI workflow runs `mvn --batch-mode clean verify`.
+- [x] CI workflow runs `mvn --batch-mode clean verify` on feature/development changes and PRs to `develop` and `main`.
 - [ ] Latest commit on the final PR has a successful CI run.
 - [ ] A team member runs `mvn --batch-mode clean verify` on a local checkout.
 - [ ] The app starts from a clean checkout with only tracked seed data.
@@ -36,16 +36,21 @@ Use this checklist immediately before the presentation. Do not mark a verificati
 
 ## Team and Git workflow
 
-- [x] Replace name placeholders in `TEAM.md` with the confirmed names Ángel Vargas and Diego Canales.
-- [ ] Add official student codes; they were not provided and must not be invented.
+- [x] Names confirmed in `TEAM.md`: Ángel Vargas and Diego Canales.
+- [ ] Add official student codes if the instructor requires them; they were not provided.
 - [ ] Confirm whether the instructor requires a third team member; only two names were confirmed.
 - [ ] Confirm the required personal commit and approved/merged PR counts from the assignment.
-- [ ] Complete genuine cross-review by Diego Canales (requested on PR #12); the author must not submit a review as Diego or treat self-review as approval.
-- [ ] Merge feature PRs into `develop`, then publish the verified release from `develop` to `main` using the required PR.
+- [x] Diego Canales submitted an independent approval on PR #12.
+- [x] PR #12 merged into `develop`.
+- [ ] Review the final diff and CI checks on PR #13 before merging `develop` into `main`.
 - [ ] Delete remote feature branches only after their changes are merged and the course rules allow it.
 
 ## Data and demo
 
-- [ ] Confirm the accessory-category promotion dates include the presentation date.
+- [x] Accessory-category promotion dates run from 19 October through 31 December 2026.
 - [ ] Use a disposable working copy of `data/` for the live demo to avoid changing committed seed data.
 - [ ] Record the sale ID and return ID during the demo so the receipt and monthly report can be demonstrated.
+
+## Data and transaction limitation
+
+The filesystem repositories do not provide one ACID transaction across products, accessories, sales, warranties, and returns. Test failure/recovery paths and do not claim global transaction guarantees.
