@@ -1,43 +1,35 @@
-# Team
+# Equipo y responsabilidades — GameZone Unicesar
 
-> Complete the two missing identity fields before the final Aula Web submission. The workshop requires the full name and student code of each of the three members.
+## Integrantes confirmados por el equipo
 
-| Member | Student code | Role | Module | Feature branch |
-|---|---|---|---|---|
-| Gabrielxv | **TO COMPLETE** | Technical Leader | Sales & Integration | `feature/integration` |
-| **TO COMPLETE** | **TO COMPLETE** | Developer 1 | Products | `feature/product-module` |
-| **TO COMPLETE** | **TO COMPLETE** | Developer 2 | People | `feature/person-module` |
+| Integrante | Responsabilidad | Evidencia principal |
+|---|---|---|
+| Ángel Vargas | Programador 2 y líder técnico: servicios de integración, coordinación de ventas/devoluciones/garantías, conexión de módulos, arquitectura, documentación y preparación de la entrega. | Rama `feature/leader-dev2-requirements-1-8`, PR #12 y commits asociados. |
+| Diego Canales | Programador 1: modelo de accesorios y validaciones de los tipos Controller, Cable y Memory. | Historial de contribuciones en PR #10 y archivos de modelo asociados. |
 
-## Class distribution
+**Códigos estudiantiles:** no fueron suministrados. Deben agregarse con los datos oficiales del curso; no se generan ni se adivinan.
 
-### Technical Leader
-- `Sale`
-- `SaleRepository`
-- `SaleService`
-- `ConsoleUI`
-- `Main`
+## Reparto funcional para los requerimientos 1–8
 
-### Developer 1 — Products
-- `Product`
-- `VideoGame`
-- `Console`
-- `ProductRepository`
-- `ProductService`
+### Ángel Vargas — Programador 2 y líder técnico
+- Coordinar la integración entre productos, accesorios, promociones, ventas, devoluciones y garantías.
+- Mantener los servicios de aplicación, persistencia y el flujo de venta.
+- Revisar el diseño por capas, las responsabilidades GRASP/SOLID y las validaciones transversales.
+- Mantener README, matriz de trazabilidad, diagramas Mermaid, guía de presentación y checklist.
+- Coordinar el proceso de revisión y la publicación final.
 
-### Developer 2 — People
-- `Person`
-- `Client`
-- `Seller`
-- `PersonRepository`
-- `PersonService`
+### Diego Canales — Programador 1
+- Mantener el modelo de accesorios y las reglas propias de Controller, Cable y Memory.
+- Revisar la compatibilidad con consolas y las validaciones de los atributos.
+- Revisar las pruebas del modelo y confirmar que la integración no contradiga sus reglas.
 
-## Committed activities
+## Nota sobre el equipo
 
-### Technical Leader
-Repository configuration, Maven setup, sales implementation, UI integration, application startup, documentation, and module integration.
+La información confirmada identifica dos integrantes. No se agrega una tercera persona ficticia para completar una tabla antigua. Si el docente exige tres integrantes, el equipo debe proporcionar el nombre y código oficiales del tercer miembro antes de la entrega.
 
-### Developer 1
-Product hierarchy, abstract description behavior, video game and console specializations, file persistence, product service, stock management, and JavaDoc.
+## Flujo de revisión
 
-### Developer 2
-Person hierarchy, role-specific behavior, client and seller specializations, file persistence, people service, seller preload, and JavaDoc.
+- El autor del PR no se cuenta como revisor independiente de su propio cambio.
+- La revisión cruzada de PR #12 está solicitada a Diego Canales mediante la cuenta GitHub `DiegoACanalesM`.
+- El análisis técnico del autor y las pruebas automáticas son evidencia complementaria; no sustituyen una aprobación real del compañero.
+- La fusión debe realizarse después de que el revisor examine el diff, deje comentarios si corresponde y apruebe el PR.
