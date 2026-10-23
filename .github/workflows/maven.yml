@@ -3,6 +3,7 @@ name: Maven CI
 on:
   push:
     branches:
+      - main
       - develop
       - 'feature/**'
       - 'fix/**'
