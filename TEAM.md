@@ -27,9 +27,10 @@
 
 La información confirmada identifica dos integrantes. No se agrega una tercera persona ficticia para completar una tabla antigua. Si el docente exige tres integrantes, el equipo debe proporcionar el nombre y código oficiales del tercer miembro antes de la entrega.
 
-## Flujo de revisión
+## Flujo de revisión y publicación
 
-- El autor del PR no se cuenta como revisor independiente de su propio cambio.
-- La revisión cruzada de PR #12 está solicitada a Diego Canales mediante la cuenta GitHub `DiegoACanalesM`.
-- El análisis técnico del autor y las pruebas automáticas son evidencia complementaria; no sustituyen una aprobación real del compañero.
-- La fusión debe realizarse después de que el revisor examine el diff, deje comentarios si corresponde y apruebe el PR.
+- El autor de un PR no se cuenta como revisor independiente de su propio cambio.
+- La revisión cruzada de PR #12 fue registrada por la cuenta GitHub `DiegoACanalesM`; la evidencia de revisión debe describirse según el historial real del PR.
+- PR #12 integró los requerimientos en `develop` y PR #13 publicó la integración en `main`.
+- La publicación está fusionada; antes de presentar, confirmar CI para el commit final y realizar una ejecución local limpia.
+- El análisis técnico del autor y las pruebas automáticas son evidencia complementaria; no sustituyen una revisión humana real.
