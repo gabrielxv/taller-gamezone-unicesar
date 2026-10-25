@@ -21,6 +21,14 @@ mvn --batch-mode clean verify
 mvn exec:java -Dexec.mainClass="com.gamezone.Main"
 ```
 
+To start the connected local web dashboard and JSON API instead of the console UI:
+
+```bash
+mvn exec:java -Dexec.mainClass="com.gamezone.Main" -Dexec.args="--web"
+```
+
+Then open `http://localhost:8080`. Set `GAMEZONE_PORT` to use another port. See [web dashboard and API guide](docs/web-dashboard.md).
+
 The release is not considered verified until the latest GitHub Actions run for the exact `main` commit succeeds and a team member has run the commands above locally. If the Exec Maven plugin is unavailable in an IDE, compile the project with Maven and run `com.gamezone.Main` from the IDE.
 
 The Maven CI workflow runs `mvn --batch-mode clean verify` on pushes to `main`, `develop`, and work branches, on pull requests targeting `develop` or `main`, and on manual dispatch.
@@ -89,6 +97,10 @@ Before submission, complete [the submission checklist](docs/submission-checklist
 - [Accessory class diagram](docs/accessory-class-diagram.md)
 - [GRASP responsibility audit](docs/grasp-refactor-log.md)
 - [SOLID audit](docs/solid-analysis.md)
+- [Expanded GRASP audit — leader and developer 2](docs/grasp-audit-leader-dev2.md)
+- [Expanded SOLID audit — leader and developer 2](docs/solid-audit-leader-dev2.md)
+- [Leader/developer 2 acceptance plan](docs/leader-dev2-acceptance-plan.md)
+- [Web dashboard and API guide](docs/web-dashboard.md)
 - [Submission checklist](docs/submission-checklist.md)
 - [Internal technical review and release gates](docs/internal-review-pr12.md)
 - [Team roles and identity fields](TEAM.md)
