@@ -15,11 +15,12 @@ import com.gamezone.service.ReturnService;
 import com.gamezone.service.SaleService;
 import com.gamezone.service.WarrantyService;
 import com.gamezone.ui.ConsoleUI;
+import com.gamezone.web.WebServer;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
-/** Starts GameZone and wires all application layers. */
+/** Starts GameZone and wires the shared application services. */
 public class Main {
     public static void main(String[] args) {
         try {
@@ -38,6 +39,13 @@ public class Main {
             ReturnService returnService = new ReturnService(
                     new ReturnRepository(Path.of("data", "returns.csv")), saleService, productService,
                     accessoryService, warrantyService);
+
+            if (args.length > 0 && "--web".equalsIgnoreCase(args[0])) {
+                int port = Integer.parseInt(System.getenv().getOrDefault("GAMEZONE_PORT", "8080"));
+                new WebServer(productService, accessoryService, personService, promotionService,
+                        saleService, returnService, warrantyService).start(port);
+                return;
+            }
 
             new ConsoleUI(productService, accessoryService, personService, saleService,
                     promotionService, warrantyService, returnService).start();
