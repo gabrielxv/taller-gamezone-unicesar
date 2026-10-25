@@ -8,7 +8,8 @@ Use this checklist immediately before the presentation. Mark a verification step
 - [x] Four application layers and run instructions are documented.
 - [x] Maven CI runs `mvn --batch-mode clean verify` on pushes to `main`, `develop`, work branches, and PRs targeting `develop` or `main`.
 - [x] Integrated requirements branch was merged into `develop`; release PR #13 was merged into `main`.
-- [ ] Confirm the latest GitHub Actions run for the exact `main` commit is green.
+- [x] GitHub Actions Maven CI passed for the leader/dev2 web-dashboard branch commit `2168e2d8956fec3d06b69564af52aa7fb5e3645c` (run #108). This is not yet the final `main` commit.
+- [ ] Confirm the latest GitHub Actions run for the exact final `main` commit is green.
 - [ ] A team member runs `mvn --batch-mode clean verify` on a local checkout of `main`.
 - [ ] The application starts from a clean checkout using only tracked seed data.
 - [ ] Capture the Java and Maven versions used for the final local verification.
@@ -23,6 +24,7 @@ Use this checklist immediately before the presentation. Mark a verification step
 - [x] R6: validators and a domain exception hierarchy are present.
 - [x] R7: GRASP responsibility mapping is documented.
 - [x] R8: SOLID audit and design choices are documented.
+- [x] Expanded GRASP/SOLID audits and a leader/dev2 acceptance plan were added on the web-dashboard branch.
 - [ ] Check each original clause against the full text of all assignment PDFs; the traceability matrix is a review aid, not a substitute for the original wording.
 - [ ] Run the mixed sale/return scenario in `docs/presentation-guide.md` and record actual results.
 
@@ -32,6 +34,8 @@ Use this checklist immediately before the presentation. Mark a verification step
 - [x] Integrated class/layer diagrams and sale/return sequence diagrams are documented.
 - [x] Requirement traceability, integration analysis, GRASP/SOLID notes, and presentation guide exist.
 - [x] AI usage log files are present.
+- [x] Local web dashboard/API added on the feature branch; see `docs/web-dashboard.md`.
+- [ ] Manually test the web dashboard and each API write endpoint using disposable data; CI verifies compilation/tests but does not prove the browser flow.
 - [ ] Each teammate reviews and completes their own AI log accurately; never invent another member's decisions or commits.
 - [ ] Capture the CI run URL and output from the final local `mvn clean verify`.
 - [ ] Capture a mixed sale receipt, warranty listing, return receipt, restored stock, and monthly balance.
@@ -57,4 +61,4 @@ Use this checklist immediately before the presentation. Mark a verification step
 
 Filesystem repositories do not provide one ACID transaction across product stock, accessory stock, sales, warranties, and returns. Do not claim global transaction atomicity. Any unverified failure/recovery path must be described as not yet tested.
 
-**Release status:** publication to `main` is complete. Final delivery is fully verified only after the latest CI result for `main`, local verification, and the end-to-end acceptance scenario are recorded.
+**Release status:** the earlier application release is published to `main`. Leader/dev2 web-dashboard and expanded audit changes are in PR #19 and have passed Maven CI on the feature branch. Final delivery is fully verified only after PR review/merge, CI for the resulting `main` commit, local verification, web endpoint checks, and the end-to-end acceptance scenario are recorded.
