@@ -8,7 +8,8 @@ Use this checklist immediately before the presentation. Mark a verification step
 - [x] Four application layers and run instructions are documented.
 - [x] Maven CI runs `mvn --batch-mode clean verify` on pushes to `main`, `develop`, work branches, and PRs targeting `develop` or `main`.
 - [x] Integrated requirements branch was merged into `develop`; release PR #13 was merged into `main`.
-- [x] GitHub Actions Maven CI passed for the leader/dev2 web-dashboard branch commit `2168e2d8956fec3d06b69564af52aa7fb5e3645c` (run #108). This is not yet the final `main` commit.
+- [x] GitHub Actions Maven CI passed for an earlier leader/dev2 web-dashboard branch commit (run #110); this is not the final feature-branch head or the final `main` commit.
+- [ ] Confirm GitHub Actions run #113 for feature-branch head `aeb43bf7390a1ba7504c6628d6126d57cdd96fc6` completes successfully.
 - [ ] Confirm the latest GitHub Actions run for the exact final `main` commit is green.
 - [ ] A team member runs `mvn --batch-mode clean verify` on a local checkout of `main`.
 - [ ] The application starts from a clean checkout using only tracked seed data.
@@ -31,7 +32,7 @@ Use this checklist immediately before the presentation. Mark a verification step
 ## 3. Documentation and evidence
 
 - [x] README includes build, test, and run commands.
-- [x] Integrated class/layer diagrams and sale/return sequence diagrams are documented.
+- [x] Integrated class/layer diagrams, sale/return sequence diagrams, and dedicated GRASP/SOLID diagrams are documented.
 - [x] Requirement traceability, integration analysis, GRASP/SOLID notes, and presentation guide exist.
 - [x] AI usage log files are present.
 - [x] Local web dashboard/API added on the feature branch; see `docs/web-dashboard.md`.
@@ -61,4 +62,4 @@ Use this checklist immediately before the presentation. Mark a verification step
 
 Filesystem repositories do not provide one ACID transaction across product stock, accessory stock, sales, warranties, and returns. Do not claim global transaction atomicity. Any unverified failure/recovery path must be described as not yet tested.
 
-**Release status:** the earlier application release is published to `main`. Leader/dev2 web-dashboard and expanded audit changes are in PR #19 and have passed Maven CI on the feature branch. Final delivery is fully verified only after PR review/merge, CI for the resulting `main` commit, local verification, web endpoint checks, and the end-to-end acceptance scenario are recorded.
+**Release status:** the earlier application release is published to `main`. Leader/dev2 web-dashboard and expanded audit changes are in PR #19. Maven CI passed on an earlier feature-branch commit; CI run #113 is checking the latest diagrams/docs commit. Final delivery is fully verified only after PR review/merge, CI for the resulting `main` commit, local verification, web endpoint checks, and the end-to-end acceptance scenario are recorded.
